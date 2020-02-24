@@ -8,7 +8,7 @@ class UserManager(BaseUserManager):
     an email instead of a username for login purposes
     """
 
-    def _create_user(self, email: str, password: str, **kwargs):
+    def create_user(self, email: str, password: str, **kwargs):
         """
         Create and save a user with given email and password
         :param email: user's email, must be in a valid form
@@ -34,4 +34,4 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_staff=True')
         if kwargs.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True')
-        return self._create_user(email, password, **kwargs)
+        return self.create_user(email, password, **kwargs)
