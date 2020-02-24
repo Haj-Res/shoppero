@@ -1,0 +1,17 @@
+{% load i18n %}
+{% autoescape off %}
+    {% trans "Hi" %} {{ user }}:
+    {% trans "Click" %}
+    <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">
+        {% trans "here" %}
+    </a>
+    {% trans "to activate your account." %}
+    <p>
+        {% blocktrans %}
+            This link is valid for {{ expiration_days }} days.
+            After that, you won't be able to activate your account.
+        {% endblocktrans %}
+    </p>
+
+
+{% endautoescape %}
