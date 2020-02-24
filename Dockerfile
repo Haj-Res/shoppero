@@ -17,9 +17,9 @@ RUN pip install -r requirements.txt
 
 COPY . /code/
 
-RUN mkdir -p ./media
-RUN mkdir -p ./static
+RUN mkdir -p /var/www/media/
+RUN mkdir -p /var/www/static/
 RUN adduser -D user
-RUN chown -R user:user ./media
-RUN chmod -R 744 ./static
+RUN chown -R user:user /var/www/media/
+RUN chmod -R 777 /var/www/static/
 USER user

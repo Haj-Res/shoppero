@@ -1,12 +1,12 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model, password_validation
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, AuthenticationForm
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 
 from core import string_constants
-from core.utils.send_mail import send_mail
+from utils.send_mail import send_mail
 
 
 class UserCreationForm(forms.ModelForm):
@@ -34,6 +34,7 @@ class UserCreationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
+        self.label_suffix = ""
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD] \
                 .widget.attrs['autofocus'] = True
@@ -66,14 +67,16 @@ class UserCreationForm(forms.ModelForm):
 
 
 class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=100, help_text=_('First Name'),
-                                 required=False)
-    last_name = forms.CharField(max_length=100, help_text=_('Last Name'),
-                                required=False)
+    first_name = forms.CharField(max_length=100, required=False)
+    last_name = forms.CharField(max_length=100, required=False)
 
     class Meta:
         model = get_user_model()
         fields = ('email', 'first_name', 'last_name', 'password1', 'password2')
+
+    def __init__(self, *args, **kwargs):
+        super(SignUpForm, self).__init__(*args, **kwargs)
+        self.label_suffix = ""
 
 
 class CustomPasswordResetForm(PasswordResetForm):
@@ -84,3 +87,13 @@ class CustomPasswordResetForm(PasswordResetForm):
         subject = ''.join(subject.splitlines())
         body = loader.render_to_string(email_template_name, context)
         send_mail(subject, body, [to_email], sender=from_email)
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetForm, self).__init__(*args, **kwargs)
+        self.label_suffix = ""
+
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        self.label_suffix = ""

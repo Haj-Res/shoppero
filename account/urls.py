@@ -3,12 +3,12 @@ from django.contrib.auth.views import LoginView, PasswordResetView, \
     PasswordResetDoneView, PasswordResetCompleteView, PasswordChangeDoneView
 from django.urls import path
 
-from account.forms import CustomPasswordResetForm
+from account.forms import CustomPasswordResetForm, LoginForm
 from account.views import RegistrationView, ActivateView, \
     RegistrationSuccessView
 
 urlpatterns = [
-    path('login/', LoginView.as_view(), name='auth_login'),
+    path('login/', LoginView.as_view(form_class=LoginForm), name='auth_login'),
     path('logout/',
          LogoutView.as_view(template_name='registration/logout.html'),
          name='auth_logout'),

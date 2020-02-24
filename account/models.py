@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from account.managers import UserManager
 from core.mixins import SoftDeleteMixin
-from core.utils.send_mail import send_mail
+from utils.send_mail import send_mail
 
 
 class User(AbstractBaseUser, SoftDeleteMixin, PermissionsMixin):
