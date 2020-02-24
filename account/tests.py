@@ -11,7 +11,7 @@ class TestUserCreation(TestCase):
 
     def test_create_user(self):
         """Test user creation"""
-        user = get_user_model().objects._create_user(
+        user = get_user_model().objects.create_user(
             email=self.valid_email,
             password=self.valid_pass
         )
@@ -20,12 +20,12 @@ class TestUserCreation(TestCase):
     def test_create_user_fail(self):
         """Test user creation fails without email"""
         with self.assertRaises(ValueError):
-            get_user_model().objects._create_user(
+            get_user_model().objects.create_user(
                 email=self.invalid_email,
                 password=self.valid_pass
             )
         with self.assertRaises(ValueError):
-            get_user_model().objects._create_user(
+            get_user_model().objects.create_user(
                 email=self.valid_email,
                 password=self.invalid_pass
             )

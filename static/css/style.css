@@ -1,0 +1,11 @@
+.hint {
+    color: grey; !important;
+}
+
+.error {
+    color: red; !important;
+}
+
+.container-pad {
+    padding: 1em;
+}
