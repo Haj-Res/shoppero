@@ -2,8 +2,20 @@
 {% load i18n %}
 
 {% block content %}
-    <p>{% trans "Your account is now activated." %}
-        <a href="{% url 'auth_login' %}">{% trans "Click here" %}</a> to
-        continue to login.
-    </p>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url "index" %}">{% trans "Home" %}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Sign up" %}
+            </li>
+        </ol>
+    </nav>
+    <section>
+        <p>{% trans "Your account is now activated." %}
+            <a href="{% url 'auth_login' %}">{% trans "Click here" %}</a> to
+            continue to login.
+        </p>
+    </section>
 {% endblock %}

@@ -63,8 +63,10 @@ class ActivateView(View):
             user = None
         if user is not None \
                 and account_activation_token.check_token(user, token):
-            user.is_active = True
-            user.save()
+            User.objects.filter(pk=user.id).update(is_active=True)
+            # user.is_active = True
+            # user.save()
+            user.refresh_from_db()
             logger.info('User %s activated', user)
             return render(request, 'registration/activation_complete.html')
         else:

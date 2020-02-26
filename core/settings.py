@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'core',
     'account',
     'pages',
+    'shopping_list',
 ]
 
 MIDDLEWARE = [
@@ -144,4 +145,4 @@ EMAIL_POST = os.environ.get('EMAIL_PORT')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'false').lower() == 'true'
 
 PASSWORD_RESET_TIMEOUT_DAYS = 7
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'shopping_list'

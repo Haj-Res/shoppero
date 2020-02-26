@@ -1,11 +1,21 @@
 .hint {
-    color: grey; !important;
+    color: grey;
+!important;
 }
 
 .error {
-    color: red; !important;
+    color: red;
+!important;
 }
 
 .container-pad {
     padding: 1em;
+}
+
+section {
+    margin: 0 1em;
+}
+
+.table-row {
+    cursor: pointer;
 }

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url "index" %}">{% trans "Home" %}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Shopping lists" %}
+            </li>
+        </ol>
+    </nav>
+    <section>
+        <div class="flex-column justify-content-between">
+            <header>
+                <h3>{% trans "Your shopping lists" %}</h3>
+            </header>
+            <a href="#" class="btn btn-secondary">New list</a>
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>List</th>
+                <th>Number of items</th>
+                <th>Total price</th>
+            </tr>
+            <tbody>
+            {% for item in shopping_lists %}
+                <tr class="table-row" data-href="#">
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ item.shopping_list__name }}</td>
+                    <td>{{ item.complete_item_count }}/{{ item.item_count }}</td>
+                    <td>{{ item.total_price }}KM</td>
+                </tr>
+
+            {% empty %}
+                <article>
+                    <p>
+                        {% trans "Click" %} <a
+                            href="#">{% trans "here" %}</a>
+                        {% trans "to add a new list and start using the site." %}
+                    </p>
+                </article>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    <script>
+        $(document).ready(function (e) {
+            initClickableTableRow();
+        })
+    </script>
+{% endblock %}

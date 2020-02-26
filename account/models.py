@@ -6,11 +6,11 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from account.managers import UserManager
-from core.mixins import SoftDeleteMixin
+from core.models import SoftDeleteModel
 from utils.send_mail import send_mail
 
 
-class User(AbstractBaseUser, SoftDeleteMixin, PermissionsMixin):
+class User(AbstractBaseUser, SoftDeleteModel, PermissionsMixin):
     email = models.EmailField(unique=True, null=False, blank=False)
     is_staff = models.BooleanField(
         _('staff status'),
