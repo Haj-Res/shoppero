@@ -8,6 +8,10 @@
 !important;
 }
 
+.error ul {
+    padding-left: 5px;
+}
+
 .container-pad {
     padding: 1em;
 }
@@ -18,4 +22,31 @@ section {
 
 .table-row {
     cursor: pointer;
+}
+
+.table-data {
+    text-align: center;
+    font-size: x-large;
+    color: darkgrey;
+    font-weight: bold;
+}
+
+.table-data a {
+    color: grey;
+}
+
+.table-data a:hover {
+    color: grey;
+}
+
+.table-data-center {
+    text-align: center;
+}
+
+.inline-heading {
+    display: inline;
+}
+
+.justify-text-right {
+    text-align: right;
 }

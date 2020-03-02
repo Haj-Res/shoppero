@@ -1,15 +1,16 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
+
+from shopping_list.models import Item
 
 
-class ItemListForm(forms.Form):
-    item = forms.CharField(label=_('item'), max_length=100, required=True)
-    quantity = forms.IntegerField(label=_('quantity'), min_value=0,
-                                  max_value=32767, required=False)
-    price = forms.DecimalField(label=_('item price'), max_digits=9,
-                               decimal_places=2, required=False)
+class ItemForm(forms.ModelForm):
+    tags = forms.CharField(max_length=250, required=False)
 
-
-class ShoppingListForm(forms.ModelForm):
     class Meta:
-        fields = ('name',)
+        model = Item
+        fields = ('name', 'code', 'price', 'tags')
+
+    def __init__(self, *args, **kwargs):
+        super(ItemForm, self).__init__(*args, **kwargs)
+        self.fields['tags'].widget = forms.Textarea()
+        self.label_suffix = ''

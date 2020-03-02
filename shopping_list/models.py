@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -7,10 +8,12 @@ from core.models import SoftDeleteModel
 
 class Item(SoftDeleteModel):
     """Items that are added to shopping lists"""
-    name = models.CharField(max_length=200)
+    name = models.CharField(_('item name'), max_length=200)
     code = models.CharField(_('item code'), max_length=20, blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True,
                                 blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     tags = models.ManyToManyField('shopping_list.Category', blank=True)
 
     class Meta:
@@ -19,10 +22,18 @@ class Item(SoftDeleteModel):
     def __str__(self):
         return self.name
 
+    def clean_fields(self, exclude=None):
+        super(Item, self).clean_fields(exclude)
+        if self.price and self.price < 0:
+            raise ValidationError({
+                'price': _('Price must be a positive number')
+            }, code='invalid')
+
 
 class ShoppingList(SoftDeleteModel):
     """Shopping list object"""
-    name = models.CharField(max_length=100, blank=True)
+    name = models.CharField(_('shopping list name'), max_length=100,
+                            blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     created = models.DateTimeField(_('creation date'), auto_created=True)
@@ -79,3 +90,6 @@ class SharedShoppingList(SoftDeleteModel):
 
 class Category(SoftDeleteModel):
     name = models.CharField(_('item category'), max_length=30)
+
+    def __str__(self):
+        return self.name

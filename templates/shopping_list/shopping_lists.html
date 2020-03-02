@@ -4,20 +4,22 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url "index" %}">{% trans "Home" %}</a>
+                <a href="{% url "index" %}">Home</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Shopping lists" %}
+                Shopping lists
             </li>
         </ol>
     </nav>
     <section>
-        <div class="flex-column justify-content-between">
-            <header>
-                <h3>{% trans "Your shopping lists" %}</h3>
-            </header>
-            <a href="#" class="btn btn-secondary">New list</a>
-        </div>
+        <header class="mb-3">
+            <h3 class="inline-heading">Your shopping lists</h3>
+            <div class="float-right">
+                <a href="#" class="mr-2 btn btn-secondary">New list</a>
+                <a href="{% url 'items' %}" class="mr-2 btn btn-outline-secondary">
+                    View my items</a>
+            </div>
+        </header>
         <table class="table table-hover">
             <thead>
             <tr>
@@ -36,13 +38,12 @@
                 </tr>
 
             {% empty %}
-                <article>
-                    <p>
-                        {% trans "Click" %} <a
-                            href="#">{% trans "here" %}</a>
-                        {% trans "to add a new list and start using the site." %}
-                    </p>
-                </article>
+                <tr id="table-empty">
+                    <td class="table-data" colspan="4">
+                        Click <a href="#">here</a> to add a new list and start
+                        using the site.
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
         </table>
