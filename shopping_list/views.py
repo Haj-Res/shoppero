@@ -47,11 +47,13 @@ class SingleItemJsonView(View):
                                                         **kwargs)
 
     def get(self, request, pk, *args, **kwargs):
+        logger.info('User %d requesting item %d', request.user.id, pk)
         item = get_object_or_404(Item, pk=pk)
         context = {'status': 'success', 'item': item_to_dict(item)}
         return JsonResponse(context, safe=False)
 
     def delete(self, request, pk):
+        logger.info('User %d deleting item %d', request.user.id, pk)
         instance = get_object_or_404(Item, id=pk, user=request.user)
         instance.soft_delete()
         instance.save()
@@ -59,8 +61,10 @@ class SingleItemJsonView(View):
         return JsonResponse(context)
 
     def patch(self, request, pk):
+        logger.info('User %d updating item %d', request.user.id, pk)
         instance = get_object_or_404(Item, id=pk, user=request.user)
         data = QueryDict(request.body)
+        logger.info(data)
         form = self._form_class(data or None, instance=instance)
         if form.is_valid():
             tags = form.cleaned_data.pop('tags', '')
@@ -75,6 +79,7 @@ class SingleItemJsonView(View):
                 'content': item_to_dict(instance)
             }
         else:
+            logger.info('Item update failed: %s', form.errors)
             context = {
                 'status': 'error',
                 'message': _('Submission error'),
@@ -92,12 +97,16 @@ class ItemListView(View):
         return super(ItemListView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        items = Item.objects.filter(deleted__isnull=True).all().order_by('id')
+        logger.info('User %d requesting item list', request.user.id)
+        order_param = request.GET.get('order_by', 'id')
+        items = Item.objects.filter(deleted__isnull=True).all().order_by(
+            order_param)
         context = {'items': items}
-        print(context)
         return HttpResponse(render(request, self._template_name, context))
 
     def post(self, request):
+        logger.info('Creating new item for user %d', request.user.id)
+        logger.info(request.POST)
         form = self._form_class(request.POST)
         if form.is_valid():
             tags = form.cleaned_data.pop('tags', '')
@@ -113,6 +122,7 @@ class ItemListView(View):
                 'content': item_to_dict(instance)
             }
         else:
+            logger.info('Item creation failed: %s', form.errors)
             context = {
                 'status': 'error',
                 'message': _('Submission error'),
@@ -131,7 +141,6 @@ def add_tag_to_item(instance, tag_list):
         try:
             instance.tags.add(tag)
         except Exception as e:
-            print(e)
             logger.exception(e)
     instance.save()
     return instance

@@ -19,7 +19,10 @@ COPY . /code/
 
 RUN mkdir -p /var/www/media/
 RUN mkdir -p /var/www/static/
+RUN mkdir -p /code/logs/
 RUN adduser -D user
 RUN chown -R user:user /var/www/media/
+RUN chown -R user:user /code/logs/
 RUN chmod -R 777 /var/www/static/
+RUN chmod -R 777 /code/logs/
 USER user
