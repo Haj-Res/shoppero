@@ -2,5 +2,13 @@
 {% load i18n %}
 
 {% block content %}
-Index page
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Home</li>
+        </ol>
+    </nav>
+    <section>
+        <a href="{% url 'shopping_list' %}" class="btn btn-secondary m-5">My
+            Shopping lists</a>
+    </section>
 {% endblock %}
