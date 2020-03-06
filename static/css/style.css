@@ -109,3 +109,7 @@ section {
 #shared-mail-body td {
     color: white;
 }
+
+.min-w-300 {
+    min-width: 300px !important;
+}

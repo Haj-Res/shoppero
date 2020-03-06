@@ -149,7 +149,7 @@ function postOrPatchItemData(event) {
             tags: $('#tags').val()
         };
         $.ajax({
-            headers:  getHeaders(),
+            headers: getHeaders(),
             url: $form.attr('action'),
             type: $form.attr('method').toUpperCase(),
             data: data,
@@ -167,6 +167,7 @@ function postOrPatchItemData(event) {
                 } else if ('status' in response && response.status === 'error') {
                     displayErrors(response.content);
                 }
+                createToastMessage(response.message, response.status);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 // TODO handle error

@@ -72,30 +72,36 @@ function validateShoppingListItem(item) {
 function initAddItemToMapButton(itemMap) {
     $('#add-item').off('click').on('click', function (e) {
         e.preventDefault();
-        const $code = $('#code');
-        const $quantity = $('#quantity');
-        const $price = $('#price');
+        const ITEM_IN_LIST_LIMIT = 30;
+        if (itemMap.size < ITEM_IN_LIST_LIMIT) {
+            const $code = $('#code');
+            const $quantity = $('#quantity');
+            const $price = $('#price');
 
-        const item = {
-            name: $('#item-name').val().trim(),
-            code: $code.val(),
-            quantity: $quantity.val() ? parseFloat($quantity.val()) : 1,
-            price: $price.val(),
-            is_done: $('#is-done').prop('checked')
-        };
-        const errors = validateShoppingListItem(item);
-        if ($.isEmptyObject(errors)) {
-            const itemString = `${item.name}${item.quantity}${item.price}${item.is_done}`;
-            const hash = itemString.hashCode();
-            if (!itemMap.has(hash)) {
-                const row = createShoppingListItemRow(item, hash);
-                addRowToTable('items', row);
-                initDeleteItemRow(itemMap);
-                clearShoppingListItemForm();
-                itemMap.set(hash, item);
+            const item = {
+                name: $('#item-name').val().trim(),
+                code: $code.val(),
+                quantity: $quantity.val() ? parseFloat($quantity.val()) : 1,
+                price: $price.val(),
+                is_done: $('#is-done').prop('checked')
+            };
+            const errors = validateShoppingListItem(item);
+            if ($.isEmptyObject(errors)) {
+                const itemString = `${item.name}${item.quantity}${item.price}${item.is_done}`;
+                const hash = itemString.hashCode();
+                if (!itemMap.has(hash)) {
+                    const row = createShoppingListItemRow(item, hash);
+                    addRowToTable('items', row);
+                    initDeleteItemRow(itemMap);
+                    clearShoppingListItemForm();
+                    itemMap.set(hash, item);
+                }
+            } else {
+                displayErrors(errors)
             }
         } else {
-            displayErrors(errors)
+            createToastMessage(`List can't have more than ${ITEM_IN_LIST_LIMIT} items`,
+                'warning');
         }
     })
 }
@@ -171,12 +177,10 @@ function initSharedMailDeleteButton(sharedUser) {
 
 function initSubmitShoppingList(itemMap, emailSet) {
     $('#submit-shopping-list').off('click').on('click', function (e) {
-        console.log(itemMap);
         let emails = Array.from(emailSet);
         if (!emails.length) {
             emails = [''];
         }
-        console.log(emails);
         let items = [];
         for (const key of itemMap.keys()) {
             const i = itemMap.get(key);
@@ -189,13 +193,11 @@ function initSubmitShoppingList(itemMap, emailSet) {
             };
             items.push(obj)
         }
-        console.log(items);
         const data = {
             shopping_list: {name: $('#name').val().trim()},
             items: items,
             emails: emails
         };
-        console.log(data);
         const url = $(this).data('url');
 
         $.ajax({
@@ -211,7 +213,6 @@ function initSubmitShoppingList(itemMap, emailSet) {
                         createToastMessage(response.message, response.status,
                             2000, 'Submission Error');
                     } else if ('errors' in response) {
-                        console.log(response);
                         displayErrors(response.errors)
                     }
                 }

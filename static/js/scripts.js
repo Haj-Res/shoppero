@@ -17,16 +17,13 @@ function initClickableTableRow() {
 }
 
 function displayErrors(errors) {
-    console.log(errors);
     for (let key in errors) {
         if (errors.hasOwnProperty(key)) {
-            console.log(key);
             let err_content = '<small><ul>';
             errors[key].forEach(err => {
                 err_content += '<li>' + err + '</li>';
             });
             err_content += '</ul></small>';
-            console.log(err_content);
             $('#' + key + '_errors').html(err_content);
         }
     }
@@ -126,7 +123,7 @@ function createToastMessage(message, level, duration, title) {
     duration = duration ? duration : 2000;
     title = title ? title : 'Notification';
     const timestamp = new Date().getTime();
-    const toast_element = `<div id="${timestamp}" class="toast border-${level}" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${duration}">
+    const toast_element = `<div id="${timestamp}" class="toast border-${level} min-w-300" role="alert" aria-live="assertive" aria-atomic="true" data-delay="${duration}">
             <div class="toast-header">
                 <strong class="mr-auto">${title}</strong>
                 <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">

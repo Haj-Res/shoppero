@@ -226,6 +226,7 @@ class ItemListView(View):
 
 
 class ItemAutocompleteView(View):
+    @method_decorator(login_required)
     def get(self, request):
         name = request.GET.get('name', '')
         if len(name) < 2:
