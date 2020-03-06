@@ -1,18 +1,24 @@
 import logging
-from collections import Iterable
 
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Sum, F, FloatField, Q
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
+from querystring_parser import parser
 
-from shopping_list.forms import ItemForm
-from shopping_list.models import ShoppingListItem, Item, Category
+from shopping_list.forms import ItemForm, ShoppingListForm, \
+    ShoppingListItemForm, SharedShoppingListForm
+from shopping_list.models import ShoppingListItem, Item
 from shopping_list.serializer import item_to_dict
+from shopping_list.utils import tags_string_to_list, add_tag_to_item, \
+    get_item_by_name
 
 logger = logging.getLogger('shoppero')
 
@@ -36,6 +42,94 @@ class ShoppingListView(TemplateView):
         )
         context.update({'shopping_lists': result})
         return context
+
+
+class ShoppingListCreateView(View):
+    template_name = 'shopping_list/shopping_list_create.html'
+    list_form = ShoppingListForm
+    shopping_list_item_form = ShoppingListItemForm
+    item_form = ItemForm
+    shared_list_form = SharedShoppingListForm
+
+    def get_context_data(self, **kwargs):
+        list_form = self.list_form()
+        item_form = self.shopping_list_item_form()
+        return {'list_form': list_form, 'item_form': item_form}
+
+    def get(self, request, pk=None):
+        context = self.get_context_data(pk=pk)
+        return HttpResponse(render(request, self.template_name, context))
+
+    def post(self, request):
+        logger.info('User creating list')
+        logger.info(request.POST)
+        data = parser.parse(request.POST.urlencode())
+        shopping_list = data.get('shopping_list')
+        list_form = self.list_form(shopping_list)
+        if list_form.is_valid():
+            s_list = list_form.save(commit=False)
+            s_list.user = request.user
+            items_dict = data.get('items')
+            if not items_dict:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'List must have at least one item'
+                })
+            s_list.save()
+            for __, item_dict in items_dict.items():
+                item_name = item_dict.pop('item')
+                item = get_item_by_name(item_name, request.user)
+                if not item:
+                    item_dict['name'] = item_name
+                    i_form = self.item_form(item_dict)
+                    if i_form.is_valid():
+                        item_obj = i_form.save(commit=False)
+                        item_obj.user = request.user
+                        item_obj.save()
+                        item = item_obj.id
+                    else:
+                        logger.error(i_form.errors)
+                item_dict['item'] = item
+                item_form = self.shopping_list_item_form(item_dict)
+                if item_form.is_valid():
+                    item_form.cleaned_data['shopping_list'] = s_list.id
+                    shopping_list_items = item_form.save(commit=False)
+                    shopping_list_items.shopping_list = s_list
+                    shopping_list_items.save()
+                else:
+                    logger.error(item_form.errors)
+            share_list = data.get('emails')
+            mail_list = share_list['']
+            if not isinstance(mail_list, list):
+                mail_list = [mail_list]
+            for mail in mail_list:
+                shared_list_dict = {
+                    'shopping_list': s_list.id,
+                    'email': mail
+                }
+
+                try:
+                    user = get_user_model().objects.get(email=mail)
+                    shared_list_dict['user'] = user.id
+                except get_user_model().DoesNotExist:
+                    pass
+                shared_list_form = self.shared_list_form(shared_list_dict)
+                if shared_list_form.is_valid():
+                    shared_list_form.save()
+                else:
+                    logger.error(shared_list_form.errors)
+
+            messages.success(request, _('Shopping list created'))
+            return JsonResponse(
+                {'status': 'success', 'url': reverse('shopping_list')})
+        else:
+            errors = {}
+            for field in list_form:
+                if field.errors:
+                    errors.update({field.name: [field.errors.as_text()[2:]]})
+            logger.error(errors)
+            context = {'status': 'error', 'errors': errors}
+            return JsonResponse(context, safe=False)
 
 
 class SingleItemJsonView(View):
@@ -131,20 +225,15 @@ class ItemListView(View):
         return JsonResponse(context, safe=False)
 
 
-def add_tag_to_item(instance, tag_list):
-    for t in tag_list:
-        tag_query = Category.objects.filter(name=t)
-        if tag_query.exists():
-            tag = tag_query.all()[0]
-        else:
-            tag = Category.objects.create(name=t)
-        try:
-            instance.tags.add(tag)
-        except Exception as e:
-            logger.exception(e)
-    instance.save()
-    return instance
-
-
-def tags_string_to_list(tags_string: str) -> Iterable:
-    return [x.strip() for x in tags_string.split(',')]
+class ItemAutocompleteView(View):
+    def get(self, request):
+        name = request.GET.get('name', '')
+        if len(name) < 2:
+            return JsonResponse(status=200, safe=False,
+                                data={'status': 'success', 'content': []})
+        items = Item.objects.filter(
+            name__icontains=name
+        ).exclude(
+            deleted__isnull=False
+        ).values('name', 'code', 'price').all().order_by('name')[:10]
+        return JsonResponse([x for x in items], safe=False)

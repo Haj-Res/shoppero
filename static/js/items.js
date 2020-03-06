@@ -23,7 +23,7 @@ function createItemTableData(item, rowNum) {
     tableRow += `<td>${item['tags']}</td>`;
     tableRow += `<td>
 <span data-url="${item['url']}" class="editItem"><i class="fas fa-pen"></i>
-<span data-url="${item['url']}" class="ml-3 deleteItem"><i class="fas fa-trash-alt"></i></span>
+<span data-url="${item['url']}" class="ml-3 delete-item"><i class="fas fa-trash-alt"></i></span>
 </span></td>`;
     return tableRow;
 }
@@ -69,7 +69,7 @@ function initItemEditBtn() {
 }
 
 function initItemDeleteBtn() {
-    $('.deleteItem').off('click').on('click', function (e) {
+    $('.delete-item').off('click').on('click', function (e) {
         const url = $(this).data('url');
         const $parent = $(this).parent().parent();
         // TODO add confirmation modal
@@ -78,18 +78,20 @@ function initItemDeleteBtn() {
             url: url,
             type: 'DELETE',
             success: function (response, textStatus, jqHxr) {
-                if ($parent.attr('id') === 'last') {
-                    $parent.prev().attr('id', 'last')
-                }
                 let is_empty = false;
-                if ($parent.prev().length < 1) {
-                    is_empty = true;
+
+                if ($parent.attr('id') === 'last') {
+                    if ($parent.prev().length < 1) {
+                        is_empty = true;
+                    } else {
+                        $parent.prev().attr('id', 'last')
+                    }
                 }
                 $parent.remove();
                 if (is_empty) {
                     const empty_row = '<tr id="table-empty">\n' +
                         '                    <td class="table-data" colspan="6">No items found</td>\n' +
-                    '                </tr>';
+                        '                </tr>';
                     $('tbody').html(empty_row);
                 }
             },
@@ -146,11 +148,8 @@ function postOrPatchItemData(event) {
             price: $('#price').val(),
             tags: $('#tags').val()
         };
-        const headers = {
-            'X-CSRFToken': getCookie('csrftoken')
-        };
         $.ajax({
-            headers: headers,
+            headers:  getHeaders(),
             url: $form.attr('action'),
             type: $form.attr('method').toUpperCase(),
             data: data,

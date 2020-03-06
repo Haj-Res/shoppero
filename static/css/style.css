@@ -48,5 +48,64 @@ section {
 }
 
 .justify-text-right {
-    text-align: right;
+    text-align: right !important;
+}
+
+.justify-text-center {
+    text-align: center !important;
+}
+
+.mw-3-vw {
+    max-width: 3vw !important;
+}
+
+.mw-4-vw {
+    max-width: 4vw !important;
+}
+
+.w-3-rem {
+    width: 3rem !important;
+}
+
+.link {
+    cursor: pointer;
+}
+
+.message-element {
+    position: absolute !important;
+    left: 85% !important;
+    top: 5% !important;
+    z-index: 999999;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    min-width: 10% !important;
+    max-width: 13%;
+}
+
+.border-error {
+  border-color: #dc3545 !important;
+}
+
+#shopping-list-card-header{
+    background-color: darkorange;
+    color: white;
+    font-weight: bold;
+}
+#shopping-list-card-body {
+    background-color: orange;
+}
+
+#shared-mail-header {
+    background-color: darkred;
+    color: white;
+    font-weight: bold;
+}
+
+#shared-mail-body {
+    background-color: indianred;
+}
+
+#shared-mail-body td {
+    color: white;
 }
