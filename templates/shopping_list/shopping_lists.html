@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -15,26 +16,31 @@
         <header class="mb-3">
             <h3 class="inline-heading">Your shopping lists</h3>
             <div class="float-right">
-                <a href="{% url 'shopping_list_create' %}" class="mr-2 btn btn-secondary">New list</a>
+                <a href="{% url 'shopping_list_create' %}" class="mr-2 btn btn-secondary">New
+                    list</a>
                 <a href="{% url 'items' %}" class="mr-2 btn btn-outline-secondary">
                     View my items</a>
             </div>
         </header>
-        <table class="table table-hover">
+        <table id="shopping-list-table" class="table table-hover">
             <thead>
             <tr>
-                <th>#</th>
                 <th>List</th>
-                <th>Number of items</th>
-                <th>Total price</th>
+                <th style="width: 20%">Number of items</th>
+                <th style="width: 20%">Total price</th>
+                <th style="width: 10%">Actions</th>
             </tr>
             <tbody>
             {% for item in shopping_lists %}
-                <tr class="table-row" data-href="#">
-                    <th scope="row">{{ forloop.counter }}</th>
+                <tr>
                     <td>{{ item.shopping_list__name }}</td>
                     <td>{{ item.complete_item_count }}/{{ item.item_count }}</td>
-                    <td>{{ item.total_price }}KM</td>
+                    <td>{{ item.total_price }}</td>
+                    <td>
+                        <a class="i-btn" href="{% url 'shopping_list_single' item.id %}"><i class="fas fa-pen"></i></a>
+                        <span class="i-btn archive-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
+                        <span class="i-btn delete-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-trash-alt"></i></span>
+                    </td>
                 </tr>
 
             {% empty %}
@@ -49,9 +55,32 @@
             </tbody>
         </table>
     </section>
+    {#    Confirm deletion modal   #}
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="confirm-delete" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Delete list
+                </div>
+                <div class="modal-body">
+                    You are about to delete this shopping list. This process
+                    can not be undone. Delete anyways?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <a class="btn btn-outline-danger btn-ok">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static "js/shopping_list.js" %}"></script>
     <script>
         $(document).ready(function (e) {
-            initClickableTableRow();
+            initListArchiveBtn();
+            initListDeleteBtn();
+            initListDeleteConfirmBtn();
         })
     </script>
 {% endblock %}

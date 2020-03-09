@@ -84,14 +84,15 @@ section {
 }
 
 .border-error {
-  border-color: #dc3545 !important;
+    border-color: #dc3545 !important;
 }
 
-#shopping-list-card-header{
+#shopping-list-card-header {
     background-color: darkorange;
     color: white;
     font-weight: bold;
 }
+
 #shopping-list-card-body {
     background-color: orange;
 }
@@ -112,4 +113,15 @@ section {
 
 .min-w-300 {
     min-width: 300px !important;
+}
+
+.i-btn {
+    cursor: pointer !important;
+    margin-right: 0.5rem !important;
+    text-decoration: none;
+    color: black;
+}
+
+.i-btn:hover {
+   color: -webkit-link; 
 }

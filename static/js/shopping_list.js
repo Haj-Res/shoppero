@@ -222,3 +222,68 @@ function initSubmitShoppingList(itemMap, emailSet) {
         });
     })
 }
+
+function initListArchiveBtn() {
+    $('.archive-list').on('click', function (e) {
+        const url = $(this).data('url');
+        deleteOrArchiveList(url, 'PUT', 'List archived');
+    })
+}
+
+function initListDeleteBtn() {
+    $('.delete-list').off('click').on('click', function (e) {
+        $('.btn-ok').data('url', $(this).data('url'));
+        $('#confirm-delete').modal('show');
+    })
+}
+
+function initListDeleteConfirmBtn() {
+    $('.btn-ok').on('click', function (e) {
+        const url = $(this).data('url');
+        deleteOrArchiveList(url, 'DELETE', 'List deleted');
+    })
+}
+
+function deleteOrArchiveList(url, method, toastMessage) {
+    $.ajax({
+        headers: getHeaders(),
+        url: url,
+        type: method,
+        success: function (response, textStatus, jqHXR) {
+            if (response.status === 'success') {
+                const table = generateShoppingListTable(response.content);
+                $('#shopping-list-table tbody').html(table);
+                initListArchiveBtn();
+                initListDeleteBtn();
+                $('.modal').modal('hide');
+                createToastMessage(toastMessage, 'info');
+            }
+        }
+    })
+}
+
+function generateShoppingListTable(items) {
+    let table = '';
+    if (items.length > 0) {
+        items.forEach(item => {
+            let row = '<tr class="table-row">';
+            row += `<td>${item.shopping_list__name}</td>`;
+            row += `<td>${item.complete_item_count}/${item.item_count}</td>`;
+            row += `<td>${item.total_price}</td>`;
+            row += `<td>
+                <a class="i-btn" href="${item.url}"><i class="fas fa-pen"></i></a>
+                <span class="i-btn archive-list" data-url="${item.url}"><i class="fas fa-archive"></i></span>
+                <span class="i-btn delete-list" data-url="${item.url}"><i class="fas fa-trash-alt"></i></span>
+                </td>`;
+            row += '</tr>';
+            table += row;
+        });
+    } else {
+        table = `<tr id="table-empty"><td class="table-data" colspan="4">
+            Click <a href="/shopping-list/lists/">here</a> to add a new 
+            list and start using the site.
+            </td></tr>`
+    }
+
+    return table;
+}
