@@ -41,7 +41,7 @@ function createShoppingListItemRow(item, id) {
     tableRow += `<td>${item.quantity}</td>`;
     tableRow += `<td>${item.price ? item.price : '-'}</td>`;
     tableRow += `<td>${item.is_done ? 'Completed' : '-'}</td>`;
-    tableRow += `<td><span class="link delete-item ml-3"><i class="fas fa-trash-alt"></i></span></td>`;
+    tableRow += `<td><span class="i-btn delete-item"><i class="fas fa-trash-alt"></i></span></td>`;
     tableRow += '</tr>';
     return tableRow;
 }
@@ -119,12 +119,13 @@ function initDeleteItemRow(itemMap) {
 }
 
 function clearShoppingListItemForm() {
-    $('#item-name').val('');
+    const $name = $('#item-name');
+    $name.val('');
     $('#code').val('');
     $('#quantity').val('');
     $('#price').val('');
     $('#is-done').prop('checked', false);
-    $('#item-name').focus()
+    $name.focus()
 }
 
 function initShareEmailForm(sharedUser) {
@@ -152,8 +153,8 @@ function initShareEmailForm(sharedUser) {
 
 function createEmailRow(mail) {
     let mailRow = `<tr id="last">`;
-    mailRow += `<td class="py-1">${mail}</td>`;
-    mailRow += `<td class="py-1 w-3-rem"><span class="link delete-mail ml-3" data-mail="${mail}"><i class="fas fa-trash-alt"></i></span></td>`;
+    mailRow += `<td>${mail}</td>`;
+    mailRow += `<td class="w-3-rem"><span class="i-btn delete-mail" data-mail="${mail}"><i class="text-white fas fa-trash-alt"></i></span></td>`;
     mailRow += `</tr>`;
     return mailRow;
 }
@@ -226,7 +227,7 @@ function initSubmitShoppingList(itemMap, emailSet) {
 function initListArchiveBtn() {
     $('.archive-list').on('click', function (e) {
         const url = $(this).data('url');
-        deleteOrArchiveList(url, 'PUT', 'List archived');
+        deleteOrArchiveList(url, 'PATCH', 'List archived');
     })
 }
 
@@ -279,11 +280,194 @@ function generateShoppingListTable(items) {
             table += row;
         });
     } else {
+        const link = $('#new-list').attr('href');
         table = `<tr id="table-empty"><td class="table-data" colspan="4">
-            Click <a href="/shopping-list/lists/">here</a> to add a new 
+            Click <a href="${link}">here</a> to add a new 
             list and start using the site.
             </td></tr>`
     }
 
     return table;
+}
+
+function initEditListEditItemRow(rowMap) {
+    return $('.edit-item-row').off('click').on('click', function (e) {
+        let activeRow = rowMap.get('activeRow');
+        if (activeRow) {
+            const $container = activeRow['container'];
+            const row = activeRow['row'];
+            $container.html(row.children());
+        }
+        const $container = $(this).closest('tr');
+        const row = $container.clone();
+        activeRow = {
+            container: $container,
+            row: row
+        };
+        rowMap.set('activeRow', activeRow);
+        const editRow = createEditItemRowForm($container);
+        $container.html(editRow);
+        initEditListEditItemRow(rowMap);
+        initCancelEditBtn(rowMap);
+        initDeleteItemEditRow();
+        initToggleItemDone();
+    });
+}
+
+function initCancelEditBtn(rowMap) {
+    let activeRow = rowMap.get('activeRow');
+    $('.cancel-btn').off('click').on('click', function (e) {
+        const $container = activeRow['container'];
+        const row = activeRow['row'];
+        $container.html(row.children());
+        activeRow = null;
+        rowMap.set('activeRow', activeRow);
+        initEditListEditItemRow(rowMap);
+        initDeleteItemEditRow();
+        initToggleItemDone();
+    });
+}
+
+function createEditItemRowForm($container) {
+    let $form = $('#template-row').clone();
+    const $itemName = $form.find('.item-name');
+    let value = $container.find('.item-name').data('value');
+    $itemName.removeAttr('id');
+    $itemName.html(value);
+
+    const $itemCode = $form.find('.item-code');
+    value = $container.find('.item-code').data('value');
+    $itemCode.removeAttr('id');
+    let input = `<input id="edit-code" type="text" placeholder="Item Code" maxlength="20"
+        class="form-control" value="${value}" form="edit-row-form">`;
+    $itemCode.removeAttr('id');
+    $itemCode.html(input);
+
+    const $itemQuantity = $form.find('.item-quantity');
+    value = $container.find('.item-quantity').data('value');
+    try {
+        value = parseFloat(value);
+    } catch (e) {
+        value = 0
+    }
+    input = `<input id="edit-quantity" type="number" step="0.01" min="0" placeholder="Quantity" max="99.99"
+       class="form-control" value="${value}" form="edit-row-form">`;
+    $itemQuantity.removeAttr('id');
+    $itemQuantity.html(input);
+
+    const $itemPrice = $form.find('.item-price');
+    value = $container.find('.item-price').data('value');
+    try {
+        value = parseFloat(value);
+    } catch (e) {
+        value = 0
+    }
+    input = `<input id="edit-price" type="number" step="0.01" min="0" placeholder="Item price" max="9999999.99"
+           class="form-control" value="${value}" form="edit-row-form">`;
+    $itemPrice.removeAttr('id');
+    $itemPrice.html(input);
+
+    const $itemDone = $form.find('.item-done');
+    value = $container.find('.item-done').data('value');
+    let checked = value === 'True' ? 'checked' : '';
+
+    input = `<div class="custom-control custom-switch">`;
+    input += `<input class="custom-control-input" type="checkbox" id="edit-done" ${checked}>`;
+    input += `<label class="custom-control-label" for="edit-done">Done?</label></div>`;
+
+    $itemDone.removeAttr('id');
+    $itemDone.html(input);
+
+    $form.find('.item-action').removeAttr('id');
+    $form.removeAttr('id');
+    return $form.html();
+}
+
+function initToggleItemDone() {
+    $('.toggle-done').off('click').on('click', function (e) {
+        let value = $(this).attr('data-value');
+        value = value === 'True' ? 'False' : 'True';
+        $(this).attr('data-value', value);
+        $(this).html(getItemDoneElement(value));
+    })
+}
+
+function getItemDoneElement(value) {
+    if (value === 'True') {
+        return '<i class="fa-15x text-success fas fa-check-circle"></i>';
+    }
+    return '<i class="fa-15x text-danger far fa-times-circle"></i>';
+}
+
+function initSubmitEditRowForm(rowMap) {
+    $('#edit-row-form').submit(function (e) {
+        e.preventDefault();
+        const form = document.querySelector('#edit-row-form');
+        if (form.checkValidity()) {
+            let activeRow = rowMap.get('activeRow');
+            if (!activeRow) {
+                return false;
+            }
+            const $container = activeRow['container'];
+            const row = activeRow['row'];
+            const code = $('#edit-code').val();
+            const itemCode = row.find('.item-code');
+            itemCode.attr('data-value', code);
+            itemCode.html(code);
+
+            const quantity = $('#edit-quantity').val();
+            const quantityItem = row.find('.item-quantity');
+            quantityItem.attr('data-value', quantity);
+            quantityItem.html(quantity);
+
+            const price = $('#edit-price').val();
+            const priceItem = row.find('.item-price');
+            priceItem.attr('data-value', price);
+            priceItem.html(price);
+
+            const done = $('#edit-done').prop('checked') ? 'True' : 'False';
+            const doneItem = row.find('.item-done');
+            doneItem.attr('data-value', done);
+            doneItem.html(getItemDoneElement(done));
+
+            $container.html(row.children());
+            initEditListEditItemRow(rowMap);
+            initCancelEditBtn(rowMap);
+            activeRow = null;
+            rowMap.set('activeRow', activeRow);
+
+            initEditListEditItemRow(rowMap);
+            initToggleItemDone();
+            initDeleteItemEditRow();
+            return false;
+        }
+    })
+}
+
+function initDeleteItemEditRow() {
+    $('.delete-item-row').off('click').on('click', function (e) {
+        const $parent = $(this).parent().parent();
+        const tableId = 'items';
+        const colspan = 6;
+        const emptyTableMessage = 'No items';
+        deleteRowFromTable(tableId, $parent, colspan, emptyTableMessage);
+    })
+}
+
+function initSubmitEditedListForm() {
+    $('#submit-shopping-list').off('click').on('click', function (e) {
+        const $dataRows = $('.data');
+        const items = [];
+        $.each($dataRows, function (_, row) {
+            const item = {
+                id: $(row).data('id'),
+                name: $(row).children('.item-name').attr('data-value'),
+                code: $(row).children('.item-code').attr('data-value'),
+                quantity: $(row).children('.item-quantity').attr('data-value'),
+                is_done: $(row).children('.item-done').attr('data-value') === 'True'
+            };
+            items.push(item);
+        });
+        console.log(items);
+    });
 }

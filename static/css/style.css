@@ -93,6 +93,12 @@ section {
     font-weight: bold;
 }
 
+#email td {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+
+}
+
 #shopping-list-card-body {
     background-color: orange;
 }
@@ -117,11 +123,22 @@ section {
 
 .i-btn {
     cursor: pointer !important;
-    margin-right: 0.5rem !important;
+    margin-right: 0.5rem;
     text-decoration: none;
     color: black;
 }
 
 .i-btn:hover {
-   color: -webkit-link; 
+    color: grey;
+}
+
+.fa-15x {
+    font-size: 1.5em;
+}
+.btn-link {
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  font-family: arial, sans-serif;
+  cursor: pointer;
 }

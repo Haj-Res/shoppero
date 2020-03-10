@@ -2,7 +2,7 @@
     <div id="shared-mail-header" class="card-header">
         Share with user
     </div>
-    <div  class="card-body pt-3 pb-1">
+    <div class="card-body pt-3 pb-1">
         <form id="share-list-form">
             <label for="email" class="sr-only">Email</label>
             <div class="input-group">
@@ -18,9 +18,16 @@
         <div id="email-list" class="mt-2" style="max-height: 127px !important; overflow: auto;">
             <table id="email" class="table m-0">
                 <tbody>
-                <tr id="table-empty">
-                    <td class="table-data" colspan="2">No emails</td>
-                </tr>
+                {% for share in list.sharedshoppinglist_set.all %}
+                    <tr {% if forloop.last %}id="last"{% endif %} data-id="{{ share.id }}">
+                        <td>{{ share.get_email | lower }}</td>
+                        <td class="w-3-rem">
+                            <span class="i-btn delete-mail" data-mail="{{ share.get_mail |lower }}"><i class="text-white fas fa-trash-alt"></i></span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    {% include 'shared/empty_table_row.html' with colspan=2 message="No emails" %}
+                {% endfor %}
                 </tbody>
             </table>
         </div>

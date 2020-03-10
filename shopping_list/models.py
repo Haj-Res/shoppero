@@ -96,7 +96,13 @@ class SharedShoppingList(SoftDeleteModel):
         db_table = 'shared_shopping_list'
 
     def __str__(self):
-        return f'{self.user.name} - {self.shopping_list.name}'
+        return f'{self.get_email()} - {self.shopping_list.name}'
+
+    def get_email(self):
+        if self.email:
+            return self.email
+        else:
+            return self.user.email
 
 
 class Category(SoftDeleteModel):

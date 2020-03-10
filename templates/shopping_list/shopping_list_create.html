@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load widget_tweaks %}
 {% load static %}
 {% block content %}
+
+    {#  Bread crumbs  #}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -12,16 +12,23 @@
                 <a href="{% url "shopping_list" %}">Shopping lists</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                New
+                {% if list %}
+                    Edit
+                {% else %}
+                    New
+                {% endif %}
             </li>
         </ol>
     </nav>
     <section>
         <div class="d-flex justify-content-between border-danger">
-            {% include 'shopping_list/shopping_list_form_card.html' %}
-            {% include 'shopping_list/share_with_user_card.html' %}
+            {% include 'shopping_list/elements/shopping_list_form_card.html' %}
+            {% include 'shopping_list/elements/share_with_user_card.html' %}
         </div>
-        <hr>
+    </section>
+
+    <hr>
+    <section>
         <div class="d-flex justify-content-between mb-3">
             <h4 class="d-inline">Items</h4>
             <div class="d-inline">
@@ -31,35 +38,32 @@
                 </button>
             </div>
         </div>
-        <table id="items" class="table">
-            <thead>
-            <tr>
-                <th>Item</th>
-                <th style="width: 20%">Code</th>
-                <th style="width: 10%">Quantity</th>
-                <th style="width: 10%">Price</th>
-                <th style="width: 10%">Completed</th>
-                <th style="width: 10%">Delete</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr id="table-empty">
-                <td class="table-data" colspan="6">No items</td>
-            </tr>
-            </tbody>
-        </table>
     </section>
+    {% include 'shopping_list/elements/shopping_list_table.html' %}
     <script src="{% static "/js/shopping_list.js" %}"></script>
 
-    <script>
-        $(document).ready(function (e) {
-            let itemMap = new Map();
-            let sharedUser = new Set();
-            initItemAutocompleteSearch();
-            itemInputOnChange();
-            initShareEmailForm(sharedUser);
-            initAddItemToMapButton(itemMap);
-            initSubmitShoppingList(itemMap, sharedUser);
-        })
-    </script>
+    {% if list %}
+        <script>
+            $(document).ready(function (e) {
+                let rowMap = new Map();
+                initEditListEditItemRow(rowMap);
+                initToggleItemDone();
+                initSubmitEditRowForm(rowMap);
+                initDeleteItemEditRow();
+                initSubmitEditedListForm();
+            });
+        </script>
+    {% else %}
+        <script>
+            $(document).ready(function (e) {
+                let itemMap = new Map();
+                let sharedUser = new Set();
+                initItemAutocompleteSearch();
+                itemInputOnChange();
+                initShareEmailForm(sharedUser);
+                initAddItemToMapButton(itemMap);
+                initSubmitShoppingList(itemMap, sharedUser);
+            })
+        </script>
+    {% endif %}
 {% endblock %}

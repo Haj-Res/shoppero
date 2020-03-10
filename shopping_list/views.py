@@ -28,6 +28,10 @@ logger = logging.getLogger('shoppero')
 class ShoppingListView(TemplateView):
     template_name = 'shopping_list/shopping_lists.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ShoppingListView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(ShoppingListView, self).get_context_data(**kwargs)
         result = get_shopping_list_items_queryset(self.request.user.id)
@@ -41,6 +45,11 @@ class ShoppingListCreateView(View):
     shopping_list_item_form = ShoppingListItemForm
     item_form = ItemForm
     shared_list_form = SharedShoppingListForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ShoppingListCreateView, self).dispatch(request, *args,
+                                                            **kwargs)
 
     def get_context_data(self, **kwargs):
         list_form = self.list_form()
@@ -94,6 +103,8 @@ class ShoppingListCreateView(View):
             if not isinstance(mail_list, list):
                 mail_list = [mail_list]
             for mail in mail_list:
+                if mail == '':
+                    continue
                 shared_list_dict = {
                     'shopping_list': s_list.id,
                     'email': mail
@@ -106,7 +117,7 @@ class ShoppingListCreateView(View):
                     pass
                 shared_list_form = self.shared_list_form(shared_list_dict)
                 if shared_list_form.is_valid():
-                    shared_list_form.save()
+                    share = shared_list_form.save()
                 else:
                     logger.error(shared_list_form.errors)
 
@@ -124,7 +135,7 @@ class ShoppingListCreateView(View):
 
 
 class ShoppingListSingle(View):
-    template_file = 'shopping_list/shopping_list_single.html'
+    template_file = 'shopping_list/shopping_list_create.html'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -141,7 +152,7 @@ class ShoppingListSingle(View):
         rendered = render(request, self.template_file, context)
         return HttpResponse(rendered)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):
         item = get_object_or_404(ShoppingList, pk=pk, user=request.user,
                                  deleted__isnull=True)
         item.soft_delete()
