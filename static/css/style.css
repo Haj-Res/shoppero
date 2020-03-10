@@ -121,7 +121,8 @@ section {
     min-width: 300px !important;
 }
 
-.i-btn {
+.i-btn,
+.i-btn-white{
     cursor: pointer !important;
     margin-right: 0.5rem;
     text-decoration: none;
@@ -130,6 +131,14 @@ section {
 
 .i-btn:hover {
     color: grey;
+}
+
+.i-btn-white {
+    color: white;
+}
+
+.i-btn-white:hover {
+    color: darkgrey !important;
 }
 
 .fa-15x {

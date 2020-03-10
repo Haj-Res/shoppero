@@ -20,9 +20,9 @@
                 <tbody>
                 {% for share in list.sharedshoppinglist_set.all %}
                     <tr {% if forloop.last %}id="last"{% endif %} data-id="{{ share.id }}">
-                        <td>{{ share.get_email | lower }}</td>
-                        <td class="w-3-rem">
-                            <span class="i-btn delete-mail" data-mail="{{ share.get_mail |lower }}"><i class="text-white fas fa-trash-alt"></i></span>
+                        <td class="email" data-email="{{ share.get_email | lower }}">{{ share.get_email | lower }}</td>
+                        <td class="w-3-rem i-btn-white delete-mail" data-mail="{{ share.get_mail |lower }}">
+                            <i class="fas fa-trash-alt"></i>
                         </td>
                     </tr>
                 {% empty %}

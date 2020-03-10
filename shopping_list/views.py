@@ -12,13 +12,14 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
 from querystring_parser import parser
+from rest_framework.viewsets import ViewSet
 
 from shopping_list.forms import ItemForm, ShoppingListForm, \
     ShoppingListItemForm, SharedShoppingListForm
 from shopping_list.models import Item, ShoppingList
 from shopping_list.querysets import get_shopping_list_items_queryset
-from shopping_list.serializer import item_to_dict
-from shopping_list.serializers import ShoppingListItemSerializer
+from shopping_list.serializers import item_to_dict, ShoppingListItemSerializer, \
+    ShoppingListSerializer
 from shopping_list.utils import tags_string_to_list, add_tag_to_item, \
     get_item_by_name
 
@@ -61,6 +62,7 @@ class ShoppingListCreateView(View):
         return HttpResponse(render(request, self.template_name, context))
 
     def post(self, request):
+        # TODO Update to use json and request.body
         logger.info('User creating list')
         logger.info(request.POST)
         data = parser.parse(request.POST.urlencode())
@@ -283,3 +285,17 @@ class ItemAutocompleteView(View):
             deleted__isnull=False
         ).values('name', 'code', 'price').all().order_by('name')[:10]
         return JsonResponse([x for x in items], safe=False)
+
+
+class UpdateShoppingListViewSet(ViewSet):
+    def update(self, request, pk):
+        logger.info(f'User {request.user} updating list {pk}')
+        logger.info(request.data)
+        instance = get_object_or_404(ShoppingList, pk=pk, deleted__isnull=True)
+        serializer = ShoppingListSerializer(instance, data=request.data,
+                                            context={'request': request})
+        if serializer.is_valid():
+            instance = serializer.save()
+        else:
+            logger.info(serializer.errors)
+        return HttpResponse('Success')

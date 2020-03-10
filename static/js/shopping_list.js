@@ -201,6 +201,8 @@ function initSubmitShoppingList(itemMap, emailSet) {
         };
         const url = $(this).data('url');
 
+        // TODO Add contentType: "application/json; charset=utf-8" and 
+        //  dataType: "json" to request after updating the backend method
         $.ajax({
             headers: getHeaders(),
             url: url,
@@ -460,13 +462,39 @@ function initSubmitEditedListForm() {
         const items = [];
         $.each($dataRows, function (_, row) {
             const item = {
-                id: $(row).data('id'),
+                link_id: $(row).attr('data-link'),
+                item_id: $(row).attr('data-item-id'),
                 name: $(row).children('.item-name').attr('data-value'),
                 code: $(row).children('.item-code').attr('data-value'),
                 quantity: $(row).children('.item-quantity').attr('data-value'),
                 is_done: $(row).children('.item-done').attr('data-value') === 'True'
             };
             items.push(item);
+        });
+
+        const $emailRows = $('.email');
+        const emails = [];
+        $.each($emailRows, function (_, row) {
+            emails.push($(row).data('email'))
+        });
+
+        const data = {
+            name: $('#name').val(),
+            items: items,
+            emails: emails
+        };
+        $.ajax({
+            headers: getHeaders(),
+            url: $(this).data('url'),
+            type: 'PUT',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(data),
+            success: function (response, textStatus, jqHxr) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                // TODO handle error
+            }
         });
         console.log(items);
     });

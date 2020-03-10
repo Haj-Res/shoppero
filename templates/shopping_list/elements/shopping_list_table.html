@@ -12,7 +12,7 @@
         </thead>
         <tbody>
         {% for list_item in list.shoppinglistitem_set.all %}
-            <tr class="data" {% if forloop.last %}id="last"{% endif %} data-id="{{ list_item.item.id }}">
+            <tr class="data" {% if forloop.last %}id="last"{% endif %} data-item-id="{{ list_item.item.id }}" data-link="{{ list_item.id }}">
                 <td class="item-name" data-value="{{ list_item.item.name }}">{{ list_item.item.name }}</td>
                 <td class="item-code" data-value="{{ list_item.item.code }}">{{ list_item.item.code }}</td>
                 <td class="item-quantity" data-value="{{ list_item.quantity }}">{{ list_item.quantity }}</td>

@@ -33,7 +33,13 @@
             <h4 class="d-inline">Items</h4>
             <div class="d-inline">
                 <a href="{% url 'shopping_list' %}" class="btn btn-outline-secondary mr-1">Cancel</a>
-                <button id="submit-shopping-list" data-url="{% url 'shopping_list_create' %}" class="btn btn-success">
+                <button id="submit-shopping-list"
+                        {% if list %}
+                        data-url="{% url 'api_shopping_list_single' list.id %}"
+                        {% else %}
+                        data-url="{% url 'shopping_list_create' %}"
+                        {% endif %}
+                        class="btn btn-success">
                     Save list
                 </button>
             </div>
@@ -42,20 +48,17 @@
     {% include 'shopping_list/elements/shopping_list_table.html' %}
     <script src="{% static "/js/shopping_list.js" %}"></script>
 
-    {% if list %}
-        <script>
-            $(document).ready(function (e) {
+
+    <script>
+        $(document).ready(function (e) {
+            {% if list %}
                 let rowMap = new Map();
                 initEditListEditItemRow(rowMap);
                 initToggleItemDone();
                 initSubmitEditRowForm(rowMap);
                 initDeleteItemEditRow();
                 initSubmitEditedListForm();
-            });
-        </script>
-    {% else %}
-        <script>
-            $(document).ready(function (e) {
+            {% else %}
                 let itemMap = new Map();
                 let sharedUser = new Set();
                 initItemAutocompleteSearch();
@@ -63,7 +66,8 @@
                 initShareEmailForm(sharedUser);
                 initAddItemToMapButton(itemMap);
                 initSubmitShoppingList(itemMap, sharedUser);
-            })
-        </script>
-    {% endif %}
+            {% endif %}
+        });
+    </script>
+
 {% endblock %}
