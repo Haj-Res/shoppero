@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib import messages
-from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse, QueryDict
@@ -11,17 +10,16 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
-from querystring_parser import parser
 from rest_framework.viewsets import ViewSet
 
 from shopping_list.forms import ItemForm, ShoppingListForm, \
     ShoppingListItemForm, SharedShoppingListForm
 from shopping_list.models import Item, ShoppingList
 from shopping_list.querysets import get_shopping_list_items_queryset
-from shopping_list.serializers import item_to_dict, ShoppingListItemSerializer, \
-    ShoppingListSerializer
-from shopping_list.utils import tags_string_to_list, add_tag_to_item, \
-    get_item_by_name
+from shopping_list.serializers import item_to_dict, \
+    ShoppingListDetailsSerializer, ShoppingListSerializer, \
+    ItemAutocompleteSerializer, ItemSerializer
+from shopping_list.utils import tags_string_to_list, add_tag_to_item
 
 logger = logging.getLogger('shoppero')
 
@@ -40,7 +38,7 @@ class ShoppingListView(TemplateView):
         return context
 
 
-class ShoppingListCreateView(View):
+class ShoppingListCreateView(TemplateView):
     template_name = 'shopping_list/shopping_list_create.html'
     list_form = ShoppingListForm
     shopping_list_item_form = ShoppingListItemForm
@@ -52,92 +50,9 @@ class ShoppingListCreateView(View):
         return super(ShoppingListCreateView, self).dispatch(request, *args,
                                                             **kwargs)
 
-    def get_context_data(self, **kwargs):
-        list_form = self.list_form()
-        item_form = self.shopping_list_item_form()
-        return {'list_form': list_form, 'item_form': item_form}
-
-    def get(self, request, pk=None):
-        context = self.get_context_data(pk=pk)
-        return HttpResponse(render(request, self.template_name, context))
-
-    def post(self, request):
-        # TODO Update to use json and request.body
-        logger.info('User creating list')
-        logger.info(request.POST)
-        data = parser.parse(request.POST.urlencode())
-        shopping_list = data.get('shopping_list')
-        list_form = self.list_form(shopping_list)
-        if list_form.is_valid():
-            s_list = list_form.save(commit=False)
-            s_list.user = request.user
-            items_dict = data.get('items')
-            if not items_dict:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': 'List must have at least one item'
-                })
-            s_list.save()
-            for __, item_dict in items_dict.items():
-                item_name = item_dict.pop('item')
-                item = get_item_by_name(item_name, request.user)
-                if not item:
-                    item_dict['name'] = item_name
-                    i_form = self.item_form(item_dict)
-                    if i_form.is_valid():
-                        item_obj = i_form.save(commit=False)
-                        item_obj.user = request.user
-                        item_obj.save()
-                        item = item_obj.id
-                    else:
-                        logger.error(i_form.errors)
-                item_dict['item'] = item
-                item_form = self.shopping_list_item_form(item_dict)
-                if item_form.is_valid():
-                    item_form.cleaned_data['shopping_list'] = s_list.id
-                    shopping_list_items = item_form.save(commit=False)
-                    shopping_list_items.shopping_list = s_list
-                    shopping_list_items.save()
-                else:
-                    logger.error(item_form.errors)
-            share_list = data.get('emails')
-            mail_list = share_list['']
-            if not isinstance(mail_list, list):
-                mail_list = [mail_list]
-            for mail in mail_list:
-                if mail == '':
-                    continue
-                shared_list_dict = {
-                    'shopping_list': s_list.id,
-                    'email': mail
-                }
-
-                try:
-                    user = get_user_model().objects.get(email=mail)
-                    shared_list_dict['user'] = user.id
-                except get_user_model().DoesNotExist:
-                    pass
-                shared_list_form = self.shared_list_form(shared_list_dict)
-                if shared_list_form.is_valid():
-                    share = shared_list_form.save()
-                else:
-                    logger.error(shared_list_form.errors)
-
-            messages.success(request, _('Shopping list created'))
-            return JsonResponse(
-                {'status': 'success', 'url': reverse('shopping_list')})
-        else:
-            errors = {}
-            for field in list_form:
-                if field.errors:
-                    errors.update({field.name: [field.errors.as_text()[2:]]})
-            logger.error(errors)
-            context = {'status': 'error', 'errors': errors}
-            return JsonResponse(context, safe=False)
-
 
 class ShoppingListSingle(View):
-    template_file = 'shopping_list/shopping_list_create.html'
+    template_name = 'shopping_list/shopping_list_create.html'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -151,7 +66,7 @@ class ShoppingListSingle(View):
 
     def get(self, request, pk):
         context = self.get_initial_context(pk)
-        rendered = render(request, self.template_file, context)
+        rendered = render(request, self.template_name, context)
         return HttpResponse(rendered)
 
     def patch(self, request, pk):
@@ -159,7 +74,7 @@ class ShoppingListSingle(View):
                                  deleted__isnull=True)
         item.soft_delete()
         result = get_shopping_list_items_queryset(request.user.id)
-        serializer = ShoppingListItemSerializer(result, many=True)
+        serializer = ShoppingListDetailsSerializer(result, many=True)
         data = serializer.data
         for i in range(0, len(data)):
             data[i]['url'] = reverse('shopping_list_single',
@@ -171,7 +86,7 @@ class ShoppingListSingle(View):
                                  deleted__isnull=True)
         item.delete()
         result = get_shopping_list_items_queryset(request.user.id)
-        serializer = ShoppingListItemSerializer(result, many=True)
+        serializer = ShoppingListDetailsSerializer(result, many=True)
         data = serializer.data
         for i in range(0, len(data)):
             data[i]['url'] = reverse('shopping_list_single',
@@ -181,6 +96,7 @@ class ShoppingListSingle(View):
 
 class SingleItemJsonView(View):
     _form_class = ItemForm
+    _serializer = ItemSerializer
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -190,7 +106,9 @@ class SingleItemJsonView(View):
     def get(self, request, pk, *args, **kwargs):
         logger.info('User %d requesting item %d', request.user.id, pk)
         item = get_object_or_404(Item, pk=pk)
-        context = {'status': 'success', 'item': item_to_dict(item)}
+        serializer = self._serializer(item)
+        url = reverse('item_single', args=[item.pk])
+        context = {'status': 'success', 'item': serializer.data, 'url': url}
         return JsonResponse(context, safe=False)
 
     def delete(self, request, pk):
@@ -273,29 +191,67 @@ class ItemListView(View):
 
 
 class ItemAutocompleteView(View):
+    _serializer = ItemAutocompleteSerializer
+
     @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ItemAutocompleteView, self).dispatch(request, *args,
+                                                          **kwargs)
+
     def get(self, request):
         name = request.GET.get('name', '')
         if len(name) < 2:
-            return JsonResponse(status=200, safe=False,
-                                data={'status': 'success', 'content': []})
-        items = Item.objects.filter(
-            name__icontains=name
-        ).exclude(
-            deleted__isnull=False
-        ).values('name', 'code', 'price').all().order_by('name')[:10]
-        return JsonResponse([x for x in items], safe=False)
+            return JsonResponse([], status=200)
+        items = Item.objects.filter(name__icontains=name,
+                                    deleted__isnull=True).all()
+        serializer = self._serializer(items, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
 
-class UpdateShoppingListViewSet(ViewSet):
+class ShoppingListViewSet(ViewSet):
+    _serializer = ShoppingListSerializer
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(ShoppingListViewSet, self).dispatch(request, *args,
+                                                         **kwargs)
+
+    def create(self, request):
+        logger.info(f'User {request.user} creating a new list')
+        logger.info(request.data)
+        serializer = self._serializer(data=request.data,
+                                      context={'request': request})
+        if serializer.is_valid():
+            messages.success(request, _('List saved'))
+            instance = serializer.save()
+            return JsonResponse({
+                'status': 'success',
+                'url': reverse('shopping_list_single', args=[instance.pk]),
+                'content': serializer.data
+            })
+        else:
+            logger.info(serializer.errors)
+            messages.error(request, _('List not saved'))
+            return JsonResponse({
+                'status': 'error',
+                'content': serializer.errors
+            })
+
     def update(self, request, pk):
         logger.info(f'User {request.user} updating list {pk}')
         logger.info(request.data)
         instance = get_object_or_404(ShoppingList, pk=pk, deleted__isnull=True)
-        serializer = ShoppingListSerializer(instance, data=request.data,
-                                            context={'request': request})
+        serializer = self._serializer(instance, data=request.data,
+                                      context={'request': request})
         if serializer.is_valid():
             instance = serializer.save()
+            return JsonResponse({
+                'status': 'success',
+                'url': reverse('shopping_list')
+            })
         else:
             logger.info(serializer.errors)
-        return HttpResponse('Success')
+            return JsonResponse({
+                'status': 'error',
+                'content': serializer.errors
+            })

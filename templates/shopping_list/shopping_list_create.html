@@ -37,7 +37,7 @@
                         {% if list %}
                         data-url="{% url 'api_shopping_list_single' list.id %}"
                         {% else %}
-                        data-url="{% url 'shopping_list_create' %}"
+                        data-url="{% url 'api_shopping_list_create' %}"
                         {% endif %}
                         class="btn btn-success">
                     Save list
@@ -51,21 +51,20 @@
 
     <script>
         $(document).ready(function (e) {
+            initAddItemToListForm();
+            initItemAutocompleteSearch();
+            itemInputOnChange();
+            initShareEmailForm();
+            initShareEmailDeleteButton();
             {% if list %}
                 let rowMap = new Map();
                 initEditListEditItemRow(rowMap);
                 initToggleItemDone();
                 initSubmitEditRowForm(rowMap);
-                initDeleteItemEditRow();
-                initSubmitEditedListForm();
+                initDeleteItemRow();
+                initSubmitShoppingList('PUT');
             {% else %}
-                let itemMap = new Map();
-                let sharedUser = new Set();
-                initItemAutocompleteSearch();
-                itemInputOnChange();
-                initShareEmailForm(sharedUser);
-                initAddItemToMapButton(itemMap);
-                initSubmitShoppingList(itemMap, sharedUser);
+                initSubmitShoppingList('POST');
             {% endif %}
         });
     </script>

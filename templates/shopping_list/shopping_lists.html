@@ -33,9 +33,9 @@
             <tbody>
             {% for item in shopping_lists %}
                 <tr>
-                    <td>{{ item.shopping_list__name }}</td>
-                    <td>{{ item.complete_item_count }}/{{ item.item_count }}</td>
-                    <td>{{ item.total_price }}</td>
+                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.shopping_list__name }}</td>
+                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.complete_item_count }}/{{ item.item_count }}</td>
+                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.total_price }}</td>
                     <td>
                         <a class="i-btn" href="{% url 'shopping_list_single' item.id %}"><i class="fas fa-pen"></i></a>
                         <span class="i-btn archive-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
@@ -81,6 +81,7 @@
             initListArchiveBtn();
             initListDeleteBtn();
             initListDeleteConfirmBtn();
+            initClickableShoppingListCell();
         })
     </script>
 {% endblock %}

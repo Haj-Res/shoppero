@@ -3,7 +3,8 @@ from django.db.models import Q
 from django.urls import reverse
 from rest_framework import serializers
 
-from shopping_list.models import Item, ShoppingListItem, SharedShoppingList
+from shopping_list.models import Item, ShoppingListItem, SharedShoppingList, \
+    ShoppingList, Category
 
 
 def item_to_dict(item: Item) -> dict:
@@ -17,7 +18,33 @@ def item_to_dict(item: Item) -> dict:
     }
 
 
-class ShoppingListItemSerializer(serializers.Serializer):
+class ItemSerializer(serializers.ModelSerializer):
+    tags = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name'
+    )
+
+    class Meta:
+        model = Item
+        fields = ('id', 'name', 'code', 'price', 'tags')
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags').replace(', ', ',').split(',')
+        instance = super(ItemSerializer, self).update(instance, validated_data)
+        instance.tags.filter(~Q(name__in=tags)).all().delte()
+        for tag in tags:
+            tag_query = Category.objects.filter(name=tag)
+            if tag_query.exists():
+                tag = tag_query.first()
+            else:
+                tag = Category.objects.create(name=tag)
+            instance.tags.add(tag)
+        instance.save()
+        return instance
+
+
+class ShoppingListDetailsSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     shopping_list__name = serializers.CharField(max_length=100)
     item_count = serializers.IntegerField()
@@ -25,7 +52,7 @@ class ShoppingListItemSerializer(serializers.Serializer):
     total_price = serializers.FloatField()
 
 
-class ItemSerializer(serializers.Serializer):
+class ShoppingListItemSerializer(serializers.Serializer):
     item_id = serializers.IntegerField(required=False, allow_null=True)
     link_id = serializers.IntegerField(required=False, allow_null=True)
     name = serializers.CharField(required=True, max_length=200)
@@ -40,7 +67,7 @@ class ItemSerializer(serializers.Serializer):
     is_done = serializers.BooleanField(default=False)
 
     def validate(self, attrs):
-        attrs = super(ItemSerializer, self).validate(attrs)
+        attrs = super(ShoppingListItemSerializer, self).validate(attrs)
         item_id = attrs.get('item_id')
         if item_id:
             exists = Item.objects.filter(pk=item_id,
@@ -63,9 +90,28 @@ class ItemSerializer(serializers.Serializer):
 
 class ShoppingListSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100, allow_blank=True)
-    items = ItemSerializer(many=True)
-    emails = serializers.ListField(child=serializers.EmailField(),
-                                   allow_empty=True, allow_null=True)
+    items = ShoppingListItemSerializer(many=True)
+    emails = serializers.ListField(child=serializers.EmailField(), default=[])
+
+    def validate(self, attrs):
+        attrs = super(ShoppingListSerializer, self).validate(attrs)
+        if len(attrs.get('items')) > 100:
+            raise serializers.ValidationError(
+                {'items': 'List can not contain more than 100 items'},
+                code='invalid'
+            )
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        instance = ShoppingList.objects.create(
+            name=validated_data['name'],
+            user=user
+        )
+        self._save_items(instance, validated_data['items'])
+        self._save_emails(instance, validated_data['emails'])
+        instance.save()
+        return instance
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name')
@@ -125,3 +171,9 @@ class ShoppingListSerializer(serializers.Serializer):
                 link.save()
             link_ids.append(link.id)
         list_items.filter(~Q(id__in=link_ids)).delete()
+
+
+class ItemAutocompleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ('id', 'name', 'code', 'price')

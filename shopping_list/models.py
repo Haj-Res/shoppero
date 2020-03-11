@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import SoftDeleteModel
@@ -123,7 +124,7 @@ def share_shopping_list_signal(sender, instance, created, **kwargs):
         else:
             email = instance.email
         # TODO replace placeholder url with proper url leading to list
-        url = '#'
+        url = reverse('shopping_list_single', args=[instance.shopping_list.id])
         subject = _('New shared shopping list')
         message = render_to_string('mail/shared_list.html', {
             'email': email,

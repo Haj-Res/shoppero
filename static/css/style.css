@@ -20,7 +20,7 @@ section {
     margin: 0 1em;
 }
 
-.table-row {
+.clickable {
     cursor: pointer;
 }
 
@@ -88,7 +88,7 @@ section {
 }
 
 #shopping-list-card-header {
-    background-color: darkorange;
+    background-color: #FA8505;
     color: white;
     font-weight: bold;
 }
@@ -100,17 +100,17 @@ section {
 }
 
 #shopping-list-card-body {
-    background-color: orange;
+    background-color: #FEA638;
 }
 
 #shared-mail-header {
-    background-color: darkred;
+    background-color: #D94C01;
     color: white;
     font-weight: bold;
 }
 
 #shared-mail-body {
-    background-color: indianred;
+    background-color: #F95F05;
 }
 
 #shared-mail-body td {
