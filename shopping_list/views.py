@@ -244,7 +244,7 @@ class ShoppingListViewSet(ViewSet):
         serializer = self._serializer(instance, data=request.data,
                                       context={'request': request})
         if serializer.is_valid():
-            instance = serializer.save()
+            serializer.save()
             return JsonResponse({
                 'status': 'success',
                 'url': reverse('shopping_list')

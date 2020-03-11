@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
@@ -32,8 +34,8 @@ class User(AbstractBaseUser, SoftDeleteModel, PermissionsMixin):
     def __str__(self) -> str:
         return str(self.email)
 
-    def email_user(self, subject, message, from_email=None, cc_list=None,
-                   **kwargs):
+    def email_user(self, subject: str, message: str, from_email: str = None,
+                   cc_list: Optional[List[str]] = None, **kwargs) -> None:
         """Send an email to this user."""
         send_mail(subject, message, [self.email], sender=from_email,
                   cc_list=cc_list, **kwargs)
@@ -50,6 +52,15 @@ class Profile(models.Model):
 
 @receiver(post_save, sender=User)
 def update_profile_signal(sender, instance, created, **kwargs):
+    """
+    Signal receiver function for creating user profile alongside the user
+    object.
+    :param sender: User class
+    :param instance: instance of the user
+    :param created: boolean value whether the user was created or not (updated)
+    :param kwargs: other arguments
+    :return: None
+    """
     if created:
         Profile.objects.create(user=instance)
     instance.profile.save()
