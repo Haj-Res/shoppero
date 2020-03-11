@@ -29,6 +29,21 @@
 </head>
 
 <body class="bg-light">
+<div class="message-element">
+    {% for message in messages %}
+        <div class="toast border-{{ message.tags }} min-w-300" role="alert" aria-live="assertive" aria-atomic="true" data-delay="4000">
+            <div class="toast-header">
+                <strong class="mr-auto">Notification</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
 <header id="header">
     {% block navbar %}
         {% include "nav_bar.html" %}
@@ -45,5 +60,10 @@
     {% block footer %}
     {% endblock %}
 </div>
+<script>
+    $(document).ready(function (e) {
+        $('.toast').toast('show');
+    })
+</script>
 </body>
 </html>

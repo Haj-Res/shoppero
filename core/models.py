@@ -24,6 +24,7 @@ class SoftDeleteModel(models.Model):
         :return: None
         """
         self.deleted = timezone.now()
+        self.save()
 
     def undelete(self) -> None:
         """
