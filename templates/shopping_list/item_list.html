@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}
+    Items
+{% endblock %}
+{% block content %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url "index" %}">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url "shopping_list" %}">Shopping lists</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Items
+            </li>
+        </ol>
+    </nav>
+    <section>
+        <header class="mb-3">
+            <h3 class="inline-heading">My saved items</h3>
+            <div class="float-right">
+                <button id="modal-btn" class="btn btn-secondary mr-2" type="button" data-toggle="modal" data-target="#itemModal">
+                    New
+                </button>
+                <button class="btn btn-outline-secondary" type="button">
+                    Scan code
+                </button>
+            </div>
+        </header>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Item</th>
+                <th>Code</th>
+                <th>Price</th>
+                <th>Tags</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr {% if forloop.last %}id="last"{% endif %} class="table-row item-{{ item.id }}">
+                    <th class="num" scope="row">{{ forloop.counter }}</th>
+                    <td>{{ item.name }}</td>
+                    <td>{% if item.code %}{{ item.code }}{% endif %}</td>
+                    <td class="justify-text-right">
+                        {% if item.price %}{{ item.price }}{% endif %}</td>
+                    <td>
+                        {% if item.tags.all %}
+                            {{ item.tags.all|join:", " }}{% endif %}
+                    </td>
+                    <td>
+                        <span data-url="{% url 'item_single' item.id %}" class="editItem"><i class="fas fa-pen"></i></span>
+                        <span data-url="{% url 'item_single' item.id %}" class="ml-3 delete-item"><i class="fas fa-trash-alt"></i></span>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr id="table-empty">
+                    <td class="table-data" colspan="6">No items found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade show" id="itemModal" tabindex="-1" role="dialog"
+         aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalLabel">New Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="item-form" action="." method="post" data-new="{% url 'items' %}">
+                    <div class="modal-body">
+                        <div id="message" class="row justify-content-center"></div>
+                        <div class="from-group mb-2">
+                            <label for="name">Name</label>
+                            <input class="form-control" type="text" id="name" required placeholder="Name">
+                            <div class="col-12 error" id="name_errors"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="from-group col-8">
+                                <label for="code">Bar code</label>
+                                <input class="form-control" type="text" id="code" placeholder="Enter the bar code of the time">
+                                <div class="col-12 error" id="code_errors"></div>
+                            </div>
+                            <div class="from-group col-4">
+                                <label for="price">Price</label>
+                                <input class="form-control" type="text" id="price" placeholder="Item price">
+                                <div class="col-12 error" id="price_errors"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tags">Tags</label>
+                            <textarea id="tags" class="form-control" cols="2"
+                                      placeholder="Add your tags separated with a coma. Example: desert,sweet,fruit"></textarea>
+                            <div class="col-12 error" id="tags_errors"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancel-btn" type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button id="save-btn" type="submit" class="btn btn-primary">
+                            Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{% static "/js/items.js" %}"></script>
+    <script>
+        $(document).ready(function (e) {
+            initModal('#itemModal', () => $('#name').focus(), cleanItemForm);
+            initItemEditBtn();
+            initItemDeleteBtn();
+            $('#modal-btn').on('click', function (e) {
+                itemModalToAddNew();
+            });
+            $("#save-btn").on('click', function (e) {
+                postOrPatchItemData(e);
+            });
+        });
+    </script>
+{% endblock %}

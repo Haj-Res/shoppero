@@ -2,7 +2,8 @@ version: '3'
 
 services:
   web:
-    build: 
+    user: $uid:$gid
+    build:
       context: .
     ports:
       - "8000:8000"
@@ -29,7 +30,7 @@ services:
   db:
     image: postgres:10-alpine
     ports:
-    - "5433:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}

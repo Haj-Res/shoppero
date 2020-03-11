@@ -1,0 +1,35 @@
+<div id="shared-mail-body" class="card d-inline flex-fill ml-4 px-0">
+    <div id="shared-mail-header" class="card-header">
+        Share with user
+    </div>
+    <div class="card-body pt-3 pb-1">
+        <form id="share-list-form">
+            <label for="email" class="sr-only">Email</label>
+            <div class="input-group">
+                <input id="email" type="email" class="form-control" placeholder="Share list with email...">
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="submit" id="email-btn">
+                        Add email
+                    </button>
+                </div>
+            </div>
+            <div id="email_errors" class="error"></div>
+        </form>
+        <div id="email-list" class="mt-2" style="max-height: 127px !important; overflow: auto;">
+            <table id="email" class="table m-0">
+                <tbody>
+                {% for share in list.sharedshoppinglist_set.all %}
+                    <tr {% if forloop.last %}id="last"{% endif %}>
+                        <td class="email" data-email="{{ share.get_email | lower }}">{{ share.get_email | lower }}</td>
+                        <td class="w-3-rem i-btn-white delete-mail">
+                            <i class="fas fa-trash-alt"></i>
+                        </td>
+                    </tr>
+                {% empty %}
+                    {% include 'shared/empty_table_row.html' with colspan=2 message="No emails" %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

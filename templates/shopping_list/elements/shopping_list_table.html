@@ -1,0 +1,51 @@
+<section>
+    <table id="items" class="table">
+        <thead>
+        <tr>
+            <th>Item</th>
+            <th style="width: 25%">Code</th>
+            <th style="width: 10%">Quantity</th>
+            <th style="width: 10%">Price</th>
+            <th style="width: 10%">Completed</th>
+            <th style="width: 10%">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for list_item in list.shoppinglistitem_set.all %}
+            <tr class="data" {% if forloop.last %}id="last"{% endif %} data-item-id="{{ list_item.item.id }}" data-link="{{ list_item.id }}">
+                <td class="item-name" data-value="{{ list_item.item.name }}">{{ list_item.item.name }}</td>
+                <td class="item-code" data-value="{{ list_item.item.code }}">{{ list_item.item.code }}</td>
+                <td class="item-quantity" data-value="{{ list_item.quantity }}">{{ list_item.quantity }}</td>
+                <td class="item-price" data-value="{{ list_item.price }}">{{ list_item.price }}</td>
+                <td class="i-btn item-done toggle-done justify-text-center" data-value="{{ list_item.is_done }}">
+                    {% if list_item.is_done %}
+                        <i class="fa-15x text-success fas fa-check-circle"></i>{% else %}
+                        <i class="fa-15x text-danger far fa-times-circle"></i>{% endif %}
+                </td>
+                <td class="item-action">
+                    <span class="i-btn mr-3 edit-item-row"><i class="fas fa-pen"></i></span>
+                    <span class="i-btn delete-item-row"><i class="fas fa-trash-alt"></i></span>
+                </td>
+            </tr>
+        {% empty %}
+            {% include 'shared/empty_table_row.html' with colspan=6 message="No items" %}
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="GET" id="edit-row-form"></form>
+    <table class="d-none">
+        <tr id="template-row">
+            <td id="tmpl-name" class="item-name"></td>
+            <td id="tmpl-code" class="item-code"></td>
+            <td id="tmpl-quantity" class="item-quantity"></td>
+            <td id="tmpl-price" class="item-price"></td>
+            <td id="tmpl-done" class="item-done"></td>
+            <td id="tmpl-action" class="fa-15x item-action">
+                <span class="i-btn cancel-btn text-danger"><i class="fas fa-ban"></i></span>
+                <button type="submit" form="edit-row-form" class=" btn-link i-btn save-btn text-success">
+                    <i class="fas fa-save"></i>
+                </button>
+            </td>
+        </tr>
+    </table>
+</section>

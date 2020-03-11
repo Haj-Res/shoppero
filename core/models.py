@@ -3,13 +3,14 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 
-class SoftDeleteMixin(models.Model):
+class SoftDeleteModel(models.Model):
     """
     Add the fields and methods necessary to support soft delete of the model
     """
     deleted = models.DateTimeField(
         _('date of deletion'),
         null=True,
+        blank=True,
         default=None,
         help_text=_('The date and time when the object was deleted')
     )
@@ -23,6 +24,7 @@ class SoftDeleteMixin(models.Model):
         :return: None
         """
         self.deleted = timezone.now()
+        self.save()
 
     def undelete(self) -> None:
         """

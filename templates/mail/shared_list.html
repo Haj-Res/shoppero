@@ -1,0 +1,11 @@
+{% load i18n %}
+{% autoescape off %}
+    <p>Hi</p>
+    <p>
+        {{ sender }} has shared a shopping list with you.
+        You can view the list by logging into your account or clicking
+        <a href="{{ list_url }}">here.</a>
+    </p>
+    <p>With kind regards, your Shoppero team.</p>
+
+{% endautoescape %}

@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load static %}
+{% load widget_tweaks %}
+<label {% if not visible_label %}class="sr-only"{% endif %}
+       for="{{ field.name }}">{{ field.label }}</label>
+{% render_field field placeholder=field.label class="form-control" %}
+{% for error in field.errors %}
+    <ul>
+        <li>
+            <small class="error">{{ error }}</small>
+        </li>
+    </ul>
+{% endfor %}

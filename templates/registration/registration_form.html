@@ -3,12 +3,22 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="row justify-content-center align-items-center"
-         style="height: 90vh">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url "index" %}">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                Sign up
+            </li>
+        </ol>
+    </nav>
+    <section class="row justify-content-center align-items-center"
+         style="height: 84vh">
         <div class="col-5">
             <div class="card">
                 <div class="card-header bg-secondary text-light">
-                    <h3>{% trans "Sign up" %}</h3>
+                    <h3>Sign up</h3>
                 </div>
                 <div class="card-body">
                     <form method="post" action=".">
@@ -30,11 +40,11 @@
                             </div>
                         {% endfor %}
                         <input class="btn btn-secondary mb-2" type="submit"
-                               value="{% trans 'Submit' %}"/>
+                               value="Submit"/>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 {% endblock %}
 
