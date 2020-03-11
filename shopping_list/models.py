@@ -100,10 +100,7 @@ class SharedShoppingList(SoftDeleteModel):
         return f'{self.get_email()} - {self.shopping_list.name}'
 
     def get_email(self):
-        if self.email:
-            return self.email
-        else:
-            return self.user.email
+        return self.email
 
 
 class Category(SoftDeleteModel):

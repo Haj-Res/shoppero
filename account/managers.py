@@ -13,7 +13,7 @@ class UserManager(BaseUserManager):
         Create and save a user with given email and password
         :param email: user's email, must be in a valid form
         :param password: user's password
-        :param kwargs: additional user parameter
+        :param kwargs: additional user parameter used by the user model
         :return: User
         """
         if not email:
@@ -25,7 +25,14 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, **kwargs):
+    def create_superuser(self, email: str, password: str, **kwargs):
+        """
+        Create and save a superuser with the given email and password
+        :param email: superuser's email, must be in a valid form
+        :param password: superuser's password
+        :param kwargs: additional user parameter used by the user model
+        :return: User
+        """
         kwargs.setdefault('is_staff', True)
         kwargs.setdefault('is_superuser', True)
         kwargs.setdefault('is_active', True)

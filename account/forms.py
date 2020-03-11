@@ -10,6 +10,7 @@ from utils.send_mail import send_mail
 
 
 class UserCreationForm(forms.ModelForm):
+    """Base model from for user creation"""
     error_messages = {
         'password_mismatch': _("The two password fields didn't match.")
     }
@@ -67,6 +68,8 @@ class UserCreationForm(forms.ModelForm):
 
 
 class SignUpForm(UserCreationForm):
+    """Sign up form which extends user creation form. Used with the
+    registration view in order to register user"""
     first_name = forms.CharField(max_length=100, required=False)
     last_name = forms.CharField(max_length=100, required=False)
 
@@ -80,6 +83,8 @@ class SignUpForm(UserCreationForm):
 
 
 class CustomPasswordResetForm(PasswordResetForm):
+    """Custom password reset form passed to django's PasswordResetView class"""
+
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email,
                   html_email_template_name=None):
@@ -94,6 +99,8 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 
 class LoginForm(AuthenticationForm):
+    """Extended AuthenticationForm in order to remove lable sufix"""
+
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.label_suffix = ""

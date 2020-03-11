@@ -3,7 +3,12 @@ from django.db.models import F, Count, Sum, Q, FloatField, QuerySet
 from shopping_list.models import ShoppingListItem
 
 
-def get_shopping_list_items_queryset(user_id) -> QuerySet:
+def get_shopping_list_items_queryset(user_id: int) -> QuerySet:
+    """
+    A query for getting shopping list details for the shopping lists overview
+    :param user_id: user's ID
+    :return: a queryset
+    """
     return ShoppingListItem.objects.values(
         'shopping_list__name'
     ).filter(
