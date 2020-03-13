@@ -108,7 +108,7 @@ data-price="${item.price}">${item.name}</option>`;
  Adding items to list helper functions
  *************************************
  */
-function initAddItemToListForm() {
+function initAddItemToListForm(rowMap) {
     const formSelector = '#shopping-list-item-form';
     $(formSelector).submit(function (e) {
         e.preventDefault();
@@ -131,6 +131,7 @@ function initAddItemToListForm() {
             initDeleteItemRow();
             clearShoppingListItemForm();
             initToggleItemDone();
+            initEditListEditItemRow(rowMap);
         }
     });
 }
@@ -233,8 +234,8 @@ function initShareEmailForm() {
 function createShareEmailRow(mail) {
     return `<tr id="last">
     <td class="email" data-email="${mail}">${mail}</td>
-    <td class="w-3-rem i-btn-white delete-mail">
-    <i class="text-white fas fa-trash-alt"></i>
+    <td class="w-3-rem i-btn delete-mail">
+    <i class="fas fa-trash-alt"></i>
     </td></tr>`;
 }
 

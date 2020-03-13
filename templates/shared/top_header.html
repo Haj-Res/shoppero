@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-md navbar-light border-bottom border-secondary">
+    <a class="navbar-brand" href="#{{ url }}">{{ title }}</a>
+    <button class="custom-navbar-toggler" type="button" data-toggle="collapse"
+            data-target=".sidebar"
+            aria-controls="sidebar" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto"></ul>
+        <ul class="navbar-nav">
+            <li class="dropdown">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span id="notification-count">5</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <ul>
+                            <li><a href="#">Notification 1</a></li>
+                            <li><a href="#">Notification 2</a></li>
+                            <li><a href="#">Notification 3</a></li>
+                            <li><a href="#">Notification 4</a></li>
+                            <li><a href="#">Another notification</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

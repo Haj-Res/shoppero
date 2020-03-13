@@ -1,14 +1,39 @@
-{% extends "base.html" %}
+{% extends "base_wide.html" %}
 {% load i18n %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Home</li>
-        </ol>
-    </nav>
-    <section>
-        <a href="{% url 'shopping_list' %}" class="btn btn-secondary m-5">My
-            Shopping lists</a>
-    </section>
+    {% url 'index' as url %}
+    {% include 'shared/top_header.html' with url=url title='Dashboard' %}
+    <div class="content">
+        <section class="d-flex justify-content-between">
+            <div class="flex-fill m-3">
+                <div class="card">
+                    <div class="card-header"><h5>Your Shopping lists</h5></div>
+                    <div class="card-body">
+                        Body of the card
+                    </div>
+                </div>
+
+            </div>
+            <div class="flex-fill m-3">
+                <div class="card">
+                    <div class="card-header"><h5>Shared Shopping lists</h5>
+                    </div>
+                    <div class="card-body">
+                        Body of the card
+                    </div>
+                </div>
+
+            </div>
+            <div class="flex-fill m-3">
+                <div class="card">
+                    <div class="card-header"><h5>Your Connections</h5></div>
+                    <div class="card-body">
+                        Body of the card
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </div>
 {% endblock %}

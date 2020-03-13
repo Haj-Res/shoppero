@@ -3,21 +3,12 @@
 {% load i18n %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url "index" %}">Home</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">Sign in</li>
-        </ol>
-    </nav>
-    <section class="row justify-content-center align-items-center"
-             style="height: 84vh">
-        <div class="col-5">
-            <div class="card-header bg-secondary text-light">
-                <h3>Sign in</h3>
-            </div>
+    <section class="row justify-content-center flex-fill align-items-center">
+        <div class="col-md-5 col-sm-8 col-xs-12">
             <div class="card">
+                <div class="card-header">
+                    <h3>Sign in</h3>
+                </div>
                 <div class="card-body">
                     {% if activation_success %}
                         <p>Account activated!</p>
@@ -35,7 +26,8 @@
                                type="submit" value="Sign in"/>
                     </form>
                     <small>Forgot password?
-                        <a href="{% url 'auth_password_reset' %}">Reset it</a>!
+                        <a href="{% url 'auth_password_reset' %}">Reset
+                            it</a>!
                     </small> <br/>
                     <small>Not member?
                         <a href="{% url 'registration_register' %}">Register</a>!

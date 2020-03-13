@@ -1,0 +1,44 @@
+<div class="sidebar-wrapper" id="sidebarSupportedContent">
+    <div class="logo">
+        <a href="{% url 'index' %}" class="simple-text">
+            {{ request.user.email }}
+        </a>
+    </div>
+    <ul class="nav">
+        {% url 'index' as index %}
+        <li {% if request.path == index %}class="active"{% endif %}>
+            <a href="{{ index }}">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+        {% url 'shopping_list' as shopping_list %}
+        <li {% if shopping_list in request.path %}class="active"{% endif %}>
+            <a href="{{ shopping_list }}">
+                <i class="fas fa-list-ul"></i>
+                <p>My Shopping Lists</p>
+            </a>
+        </li>
+
+        {% url 'items' as items %}
+        <li {% if items in request.path %}class="active"{% endif %}>
+            <a href="{{ items }}">
+                <i class="fas fa-th"></i>
+                <p>My Items</p>
+            </a>
+        </li>
+
+        <li class="second-last">
+            <a href="#">
+                <i class="fas fa-cog"></i>
+                <p>Settings</p>
+            </a>
+        </li>
+        <li class="last">
+            <a href="{% url 'auth_logout' %}">
+                <i class="fas fa-sign-out-alt"></i>
+                <p>Log out</p>
+            </a>
+        </li>
+    </ul>
+</div>

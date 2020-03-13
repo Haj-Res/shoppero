@@ -245,6 +245,7 @@ class ShoppingListViewSet(ViewSet):
                                       context={'request': request})
         if serializer.is_valid():
             serializer.save()
+            messages.success(request, _('Shopping list update'))
             return JsonResponse({
                 'status': 'success',
                 'url': reverse('shopping_list')
