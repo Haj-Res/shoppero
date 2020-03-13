@@ -1,60 +1,55 @@
-{% extends "base.html" %}
+{% extends "base_wide.html" %}
 {% load i18n %}
 {% load static %}
 {% block content %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url "index" %}">Home</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                Shopping lists
-            </li>
-        </ol>
-    </nav>
-    <section>
-        <header class="mb-3">
-            <h3 class="inline-heading">Your shopping lists</h3>
-            <div class="float-right">
-                <a id="new-list" href="{% url 'shopping_list_create' %}" class="mr-2 btn btn-secondary">New
-                    list</a>
-                <a href="{% url 'items' %}" class="mr-2 btn btn-outline-secondary">
-                    View my items</a>
-            </div>
-        </header>
-        <table id="shopping-list-table" class="table table-hover">
-            <thead>
-            <tr>
-                <th>List</th>
-                <th style="width: 20%">Number of items</th>
-                <th style="width: 20%">Total price</th>
-                <th style="width: 10%">Actions</th>
-            </tr>
-            <tbody>
-            {% for item in shopping_lists %}
+    {% url 'shopping_list' as url %}
+    {% include 'shared/top_header.html' with url=url title='Shopping Lists' %}
+    <div class="content">
+        <section>
+            <header class="mb-3">
+                <h3 class="inline-heading">Your shopping lists</h3>
+                <div class="float-right">
+                    <a id="new-list" href="{% url 'shopping_list_create' %}" class="mr-2 btn btn-secondary">New
+                        list</a>
+                    <a href="{% url 'items' %}" class="mr-2 btn btn-outline-secondary">
+                        View my items</a>
+                </div>
+            </header>
+            <table id="shopping-list-table" class="table table-hover">
+                <thead>
                 <tr>
-                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.shopping_list__name }}</td>
-                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.complete_item_count }}/{{ item.item_count }}</td>
-                    <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.total_price }}</td>
-                    <td>
-                        <a class="i-btn" href="{% url 'shopping_list_single' item.id %}"><i class="fas fa-pen"></i></a>
-                        <span class="i-btn archive-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
-                        <span class="i-btn delete-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-trash-alt"></i></span>
-                    </td>
+                    <th>List</th>
+                    <th style="width: 20%">Number of items</th>
+                    <th style="width: 20%">Total price</th>
+                    <th style="width: 10%">Actions</th>
                 </tr>
+                <tbody>
+                {% for item in shopping_lists %}
+                    <tr>
+                        <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.shopping_list__name }}</td>
+                        <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.complete_item_count }}/{{ item.item_count }}</td>
+                        <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.total_price }}</td>
+                        <td>
+                            <a class="i-btn" href="{% url 'shopping_list_single' item.id %}"><i class="fas fa-pen"></i></a>
+                            <span class="i-btn archive-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
+                            <span class="i-btn delete-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-trash-alt"></i></span>
+                        </td>
+                    </tr>
 
-            {% empty %}
-                <tr id="table-empty">
-                    <td class="table-data" colspan="4">
-                        Click
-                        <a href="{% url 'shopping_list_create' %}">here</a> to
-                        add a new list and start using the site.
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </section>
+                {% empty %}
+                    <tr id="table-empty">
+                        <td class="table-data" colspan="4">
+                            Click
+                            <a href="{% url 'shopping_list_create' %}">here</a>
+                            to
+                            add a new list and start using the site.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
     {#    Confirm deletion modal   #}
     <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="confirm-delete" aria-hidden="true">
         <div class="modal-dialog">

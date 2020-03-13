@@ -1,66 +1,53 @@
-{% extends "base.html" %}
+{% extends "base_wide.html" %}
 {% load static %}
 {% block content %}
 
-    {#  Bread crumbs  #}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url "index" %}">Home</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{% url "shopping_list" %}">Shopping lists</a>
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {% if list %}
-                    Edit
-                {% else %}
-                    New
-                {% endif %}
-            </li>
-        </ol>
-    </nav>
-    <section>
-        <div class="d-flex justify-content-between border-danger">
-            {% include 'shopping_list/elements/shopping_list_form_card.html' %}
-            {% include 'shopping_list/elements/share_with_user_card.html' %}
-        </div>
-    </section>
-
-    <hr>
-    <section>
-        <div class="d-flex justify-content-between mb-3">
-            <h4 class="d-inline">Items</h4>
-            <div class="d-inline">
-                <a href="{% url 'shopping_list' %}" class="btn btn-outline-secondary mr-1">Cancel</a>
-                <button id="submit-shopping-list"
-                        {% if list %}
-                        data-url="{% url 'api_shopping_list_single' list.id %}"
-                        {% else %}
-                        data-url="{% url 'api_shopping_list_create' %}"
-                        {% endif %}
-                        class="btn btn-success">
-                    Save list
-                </button>
+    {% url 'shopping_list' as url %}
+    {% include 'shared/top_header.html' with url=url title='Shopping Lists' %}
+    <div class="content">
+        <section>
+            <div class="d-flex justify-content-around border-danger flex-wrap">
+                {% include 'shopping_list/elements/shopping_list_form_card.html' %}
+                {% include 'shopping_list/elements/share_with_user_card.html' %}
             </div>
-        </div>
-    </section>
-    {% include 'shopping_list/elements/shopping_list_table.html' %}
+        </section>
+
+        <hr>
+        <section>
+            <div class="d-flex justify-content-between mb-3">
+                <h4 class="d-inline">Items</h4>
+                <div class="d-inline">
+                    <a href="{% url 'shopping_list' %}" class="btn btn-outline-secondary mr-1">Cancel</a>
+                    <button id="submit-shopping-list"
+                            {% if list %}
+                            data-url="{% url 'api_shopping_list_single' list.id %}"
+                            {% else %}
+                            data-url="{% url 'api_shopping_list_create' %}"
+                            {% endif %}
+                            class="btn btn-primary">
+                        Save list
+                    </button>
+                </div>
+            </div>
+        </section>
+        {% include 'shopping_list/elements/shopping_list_table.html' %}
+    </div>
     <script src="{% static "/js/shopping_list.js" %}"></script>
 
 
     <script>
         $(document).ready(function (e) {
-            initAddItemToListForm();
+            let rowMap = new Map();
+            initAddItemToListForm(rowMap);
             initItemAutocompleteSearch();
             itemInputOnChange();
             initShareEmailForm();
             initShareEmailDeleteButton();
+            initSubmitEditRowForm(rowMap);
+
             {% if list %}
-                let rowMap = new Map();
                 initEditListEditItemRow(rowMap);
                 initToggleItemDone();
-                initSubmitEditRowForm(rowMap);
                 initDeleteItemRow();
                 initSubmitShoppingList('PUT');
             {% else %}
