@@ -1,22 +1,5 @@
-String.prototype.hashCode = function () {
-    let hash = 0;
-    if (this.length === 0) return hash;
-    for (let i = 0; i < this.length; i++) {
-        let char = this.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    return hash;
-};
-
-
-function initClickableTableRow() {
-    $(".table-row").click(function () {
-        window.document.location = $(this).data("href");
-    });
-}
-
 function displayErrors(errors) {
+    $('.error').html('');
     for (let key in errors) {
         if (errors.hasOwnProperty(key)) {
             let err_content = '<small><ul>';
@@ -42,22 +25,6 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-function showMessage(type, message) {
-    let messageType = 'alert-primary';
-    switch (type) {
-        case 'success':
-            messageType = 'alert-success';
-            break;
-        case 'error':
-            messageType = 'alert-danger';
-    }
-    let messageElement = `<div class="alert ${messageType} alert-dismissible fade show px-5 py-2 " role="alert">${message}</div>`;
-    $('#message').html(messageElement);
-    setTimeout(() => {
-        $('.alert').alert('close');
-    }, 3000);
 }
 
 function initModal(modalId, showCallback, hideCallback) {
@@ -103,16 +70,6 @@ function createEmptyRow(colspan, emptyTableMessage) {
     emptyRow += `</tr>`;
     return emptyRow;
 }
-
-function validateEmail(mail) {
-    if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(mail)) {
-        return "Not a valid email format"
-    } else if (mail.length >= 254) {
-        return "Can not be longer than 254 character"
-    }
-    return false
-}
-
 
 function getHeaders() {
     return {'X-CSRFToken': getCookie('csrftoken')}

@@ -31,8 +31,8 @@
                         <td class="clickable" data-url="{% url 'shopping_list_single' item.id %}">{{ item.total_price }}</td>
                         <td>
                             <a class="i-btn" href="{% url 'shopping_list_single' item.id %}"><i class="fas fa-pen"></i></a>
-                            <span class="i-btn archive-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
-                            <span class="i-btn delete-list" data-url="{% url 'shopping_list_single' item.id %}"><i class="fas fa-trash-alt"></i></span>
+                            <span class="i-btn archive-list" data-url="{% url 'api_shopping_list_single' item.id %}"><i class="fas fa-archive"></i></span>
+                            <span class="i-btn delete-list" data-url="{% url 'api_shopping_list_single' item.id %}"><i class="fas fa-trash-alt"></i></span>
                         </td>
                     </tr>
 

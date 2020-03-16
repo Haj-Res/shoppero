@@ -18,7 +18,7 @@
                     <label for="item-name" class="sr-only">Item name</label>
                     <datalist id="item-datalist"></datalist>
                     <input id="item-name" type="text" class="form-control" placeholder="Item name" maxlength="200"
-                           list="item-datalist" data-url="{% url 'item_autocomplete' %}" required>
+                           list="item-datalist" data-url="{% url 'api_item_autocomplete' %}" required>
                     <div id="item-name_errors" class="error"></div>
                 </div>
                 <div class="d-inline col-3 float-right p-0">

@@ -137,7 +137,7 @@ function initAddItemToListForm(rowMap) {
 }
 
 function initDeleteItemRow() {
-    $('.delete-item-row').off('click').on('click', function (e) {
+    $('.delete-item-btn-row').off('click').on('click', function (e) {
         const $parent = $(this).parent().parent();
         const tableId = 'items';
         const colspan = 6;
@@ -187,7 +187,7 @@ function createShoppingListItemRow(item) {
     tableRow += `<td class="item-price" data-value="${item.price}">${item.price}</td>`;
     tableRow += `<td class="i-btn item-done toggle-done justify-text-center" data-value="${item.is_done ? "True" : "False"}">${is_done}</td>`;
     tableRow += '<td><span class="i-btn mr-3 edit-item-row"><i class="fas fa-pen"></i></span>' +
-        '<span class="i-btn delete-item-row"><i class="fas fa-trash-alt"></i></span></td>';
+        '<span class="i-btn delete-item-btn-row"><i class="fas fa-trash-alt"></i></span></td>';
     tableRow += '</tr>';
     return tableRow;
 }

@@ -9,29 +9,29 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="item-form" action="." method="post" data-new="{% url 'items' %}">
+            <form id="item-form" action="." method="post" data-new="{% url 'api_items_list' %}">
                 <div class="modal-body">
                     <div id="message" class="row justify-content-center"></div>
                     <div class="from-group mb-2">
                         <label for="name">Name</label>
-                        <input class="form-control" type="text" id="name" required placeholder="Name">
+                        <input class="form-control" type="text" id="name" required placeholder="Name" maxlength="200">
                         <div class="col-12 error" id="name_errors"></div>
                     </div>
                     <div class="row mb-2">
                         <div class="from-group col-8">
                             <label for="code">Bar code</label>
-                            <input class="form-control" type="text" id="code" placeholder="Enter the bar code of the time">
+                            <input class="form-control" type="text" id="code" placeholder="Enter the bar code of the time" maxlength="20">
                             <div class="col-12 error" id="code_errors"></div>
                         </div>
                         <div class="from-group col-4">
                             <label for="price">Price</label>
-                            <input class="form-control" type="text" id="price" placeholder="Item price">
+                            <input class="form-control" type="number" id="price" placeholder="Item price" min="0" step="0.01" max="9999999.99">
                             <div class="col-12 error" id="price_errors"></div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="tags">Tags</label>
-                        <textarea id="tags" class="form-control" cols="2"
+                        <textarea id="tags" class="form-control" cols="2" maxlength="1000"
                                   placeholder="Add your tags separated with a coma. Example: desert,sweet,fruit"></textarea>
                         <div class="col-12 error" id="tags_errors"></div>
                     </div>

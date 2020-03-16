@@ -22,8 +22,8 @@ function createItemTableData(item, rowNum) {
     tableRow += `<td class="justify-text-right">${item['price']}</td>`;
     tableRow += `<td>${item['tags']}</td>`;
     tableRow += `<td>
-<span data-url="${item['url']}" class="editItem"><i class="fas fa-pen"></i>
-<span data-url="${item['url']}" class="ml-3 delete-item"><i class="fas fa-trash-alt"></i></span>
+<span data-url="${item['url']}" class="i-btn edit-item-btn"><i class="fas fa-pen"></i>
+<span data-url="${item['url']}" class="ml-3 i-btn delete-item-btn"><i class="fas fa-trash-alt"></i></span>
 </span></td>`;
     return tableRow;
 }
@@ -52,31 +52,29 @@ function updateItemRow(item) {
 }
 
 function initItemEditBtn() {
-    $('.editItem').off('click').on('click', function (e) {
-        let url = $(this).data('url');
-        itemModalToEdit(url);
-        $.getJSON(url, function (data, textStatus, jqXHR) {
-            if (data.status === 'success') {
-                const item = data.item;
+    $('.edit-item-btn').off('click').on('click', function (e) {
+            let url = $(this).data('url');
+            itemModalToEdit(url);
+            $.getJSON(url, function (item, textStatus, jqXHR) {
                 $('#name').val(item.name);
                 $('#code').val(item.code);
                 $('#price').val(item.price);
                 $('#tags').val(item.tags);
                 $('#itemModal').modal('show');
-            }
-        });
-    })
+            });
+        }
+    )
 }
 
 function initItemDeleteBtn() {
-    $('.delete-item').off('click').on('click', function (e) {
+    $('.delete-item-btn').off('click').on('click', function (e) {
         const url = $(this).data('url');
         const $parent = $(this).parent().parent();
         // TODO add confirmation modal
         $.ajax({
-            headers: {'X-CSRFToken': getCookie('csrftoken')},
+            headers: getHeaders(),
             url: url,
-            type: 'DELETE',
+            type: 'PATCH',
             success: function (response, textStatus, jqHxr) {
                 let is_empty = false;
 
@@ -113,7 +111,7 @@ function itemModalToAddNew() {
 function itemModalToEdit(url) {
     let $form = $('#item-form');
     $form.attr('action', url);
-    $form.attr('method', 'patch');
+    $form.attr('method', 'put');
     $('.modal-title').html('Update item');
 }
 
@@ -135,43 +133,42 @@ function validateItemForm() {
     return null;
 }
 
-function postOrPatchItemData(event) {
-    event.preventDefault();
-    const errors = validateItemForm();
-    if (errors !== null) {
-        displayErrors(errors);
-    } else {
-        const $form = $('#item-form');
-        const data = {
-            name: $('#name').val(),
-            code: $('#code').val(),
-            price: $('#price').val(),
-            tags: $('#tags').val()
-        };
-        $.ajax({
-            headers: getHeaders(),
-            url: $form.attr('action'),
-            type: $form.attr('method').toUpperCase(),
-            data: data,
-            success: function (response, textStatus, jqHxr) {
-                if ('status' in response && response.status === 'success') {
-                    if ($form.attr('method').toUpperCase() === 'POST') {
-                        addItemRow(response.content);
-                    } else if ($form.attr('method').toUpperCase() === 'PATCH') {
-                        updateItemRow(response.content);
-                        $('#itemModal').modal('hide');
+function postOrPutItemData() {
+    $('#item-form').submit(function (e) {
+        e.preventDefault();
+        const form = document.querySelector('#item-form');
+        if (form.checkValidity()) {
+            const $form = $('#item-form');
+            const data = {
+                name: $('#name').val(),
+                code: $('#code').val(),
+                price: $('#price').val() ? $('#price').val() : null,
+                tags_string: $('#tags').val()
+            };
+            $.ajax({
+                    headers: getHeaders(),
+                    url: $form.attr('action'),
+                    type: $form.attr('method').toUpperCase(),
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (response, textStatus, jqHxr) {
+                        if ($form.attr('method').toUpperCase() === 'POST') {
+                            addItemRow(response);
+                        } else if ($form.attr('method').toUpperCase() === 'PUT') {
+                            updateItemRow(response);
+                            $('#itemModal').modal('hide');
+                        }
+                        initItemEditBtn();
+                        initItemDeleteBtn();
+                        cleanItemForm();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        const errors = jqXHR.responseJSON;
+                        displayErrors(errors);
                     }
-                    initItemEditBtn();
-                    initItemDeleteBtn();
-                    cleanItemForm();
-                } else if ('status' in response && response.status === 'error') {
-                    displayErrors(response.content);
                 }
-                createToastMessage(response.message, response.status);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                // TODO handle error
-            }
-        });
-    }
+            );
+        }
+    });
 }

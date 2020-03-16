@@ -6,6 +6,10 @@
     --danger: #f44336;
 }
 
+::placeholder {
+    font-style: italic;
+}
+
 html, body {
     height: 100%;
 }
@@ -503,3 +507,18 @@ td input:focus {
     padding-bottom: 29px !important;
     padding-top: 29px !important;
 }
+
+.modal-content {
+    background-color: #f2f3f2;
+    color: #252422;
+}
+
+.modal-content .modal-header {
+    background-color: #e0e1e0;
+}
+
+.modal-content ::placeholder {
+    color: #827b75;
+    font-style: italic;
+}
+

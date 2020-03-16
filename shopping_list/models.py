@@ -21,7 +21,7 @@ class Item(SoftDeleteModel):
     name = models.CharField(_('item name'), max_length=200)
     code = models.CharField(_('item code'), max_length=20, blank=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True,
-                                blank=True)
+                                blank=True, validators=[MinValueValidator(0)])
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     tags = models.ManyToManyField('shopping_list.Category', blank=True)
