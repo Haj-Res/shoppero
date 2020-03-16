@@ -5,7 +5,7 @@ from django.urls import path
 
 from account.forms import CustomPasswordResetForm, LoginForm
 from account.views import RegistrationView, ActivateView, \
-    RegistrationSuccessView
+    RegistrationSuccessView, SettingsView
 
 urlpatterns = [
     path('login/', LoginView.as_view(form_class=LoginForm), name='auth_login'),
@@ -37,5 +37,6 @@ urlpatterns = [
     path('change-password/', PasswordChangeView.as_view(),
          name='auth_password_change'),
     path('change-password/done/', PasswordChangeDoneView.as_view(),
-         name='password_change_done')
+         name='password_change_done'),
+    path('settings/', SettingsView.as_view(), name='settings')
 ]
