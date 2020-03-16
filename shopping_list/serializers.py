@@ -14,7 +14,7 @@ def item_to_dict(item: Item) -> dict:
         'code': item.code or '',
         'price': item.price or '',
         'tags': ', '.join([str(x) for x in item.tags.all()]),
-        'url': reverse('item_single', args=[item.id])
+        'url': reverse('api_item_single', args=[item.id])
     }
 
 
@@ -24,15 +24,35 @@ class ItemSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='name'
     )
+    tags_string = serializers.CharField(max_length=1000, allow_blank=True,
+                                        default='')
 
     class Meta:
         model = Item
-        fields = ('id', 'name', 'code', 'price', 'tags')
+        fields = ('id', 'name', 'code', 'price', 'tags', 'tags_string')
+        read_only_fields = ('id',)
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags_string', '').replace(', ', ',').split(
+            ',')
+        request = self.context['request']
+        validated_data['user'] = request.user
+        instance = super(ItemSerializer, self).create(validated_data)
+        instance = self._add_tags(instance, tags)
+        instance.save()
+        return instance
 
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags').replace(', ', ',').split(',')
+        tags = validated_data.pop('tags_string', '').replace(', ', ',').split(
+            ',')
         instance = super(ItemSerializer, self).update(instance, validated_data)
-        instance.tags.filter(~Q(name__in=tags)).all().delte()
+        instance.tags.filter(~Q(name__in=tags)).all().delete()
+        instance = self._add_tags(instance, tags)
+        instance.save()
+        return instance
+
+    @classmethod
+    def _add_tags(cls, instance, tags):
         for tag in tags:
             tag_query = Category.objects.filter(name=tag)
             if tag_query.exists():
@@ -40,7 +60,6 @@ class ItemSerializer(serializers.ModelSerializer):
             else:
                 tag = Category.objects.create(name=tag)
             instance.tags.add(tag)
-        instance.save()
         return instance
 
 
@@ -70,8 +89,7 @@ class ShoppingListItemSerializer(serializers.Serializer):
         attrs = super(ShoppingListItemSerializer, self).validate(attrs)
         item_id = attrs.get('item_id')
         if item_id:
-            exists = Item.objects.filter(pk=item_id,
-                                         deleted__isnull=True).exists()
+            exists = Item.objects.filter(pk=item_id).exists()
             if not exists:
                 raise serializers.ValidationError({
                     'item_id': 'Invalid Item PK value'

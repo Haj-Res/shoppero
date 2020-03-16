@@ -12,10 +12,10 @@
             <header class="mb-3">
                 <h3 class="inline-heading p-5">My items</h3>
                 <div class="float-right">
-                    <button id="modal-btn" class="btn btn-secondary mr-2" type="button" data-toggle="modal" data-target="#itemModal">
+                    <button tabindex="1" id="modal-btn" class="btn btn-secondary mr-2" type="button" data-toggle="modal" data-target="#itemModal">
                         New
                     </button>
-                    <button class="btn btn-outline-secondary" type="button">
+                    <button tabindex="2" class="btn btn-outline-secondary" type="button">
                         Scan code
                     </button>
                 </div>
@@ -44,8 +44,8 @@
                                 {{ item.tags.all|join:", " }}{% endif %}
                         </td>
                         <td>
-                            <span data-url="{% url 'item_single' item.id %}" class="editItem"><i class="fas fa-pen"></i></span>
-                            <span data-url="{% url 'item_single' item.id %}" class="ml-3 delete-item"><i class="fas fa-trash-alt"></i></span>
+                            <span data-url="{% url 'api_item_single' item.id %}" class="i-btn edit-item-btn"><i class="fas fa-pen"></i></span>
+                            <span data-url="{% url 'api_item_single' item.id %}" class="ml-3 i-btn delete-item-btn"><i class="fas fa-trash-alt"></i></span>
                         </td>
                     </tr>
                 {% empty %}
@@ -66,9 +66,7 @@
             $('#modal-btn').on('click', function (e) {
                 itemModalToAddNew();
             });
-            $("#save-btn").on('click', function (e) {
-                postOrPatchItemData(e);
-            });
+            postOrPutItemData()
         });
     </script>
 {% endblock %}

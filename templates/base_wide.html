@@ -5,7 +5,7 @@
 
 <head>
     <link rel="shortcut icon" href="{% static "favicon.ico" %}">
-    <link rel="stylesheet" href="{% static "/css/bootstrap-4.4.1.min.css" %}">
+    <link rel="stylesheet" href="{% static "/css/bootstrap-4.4.1/bootstrap.min.css" %}">
     <link rel="stylesheet" href="{% static "/css/animate.min.css" %}">
     <link rel="stylesheet" href="{% static "/css/colormind-css.css" %}"/>
     <link rel="stylesheet" href="{% static "/css/style.css" %}"/>
@@ -13,9 +13,11 @@
     <title>Shoppero - {% block title %}User test{% endblock %}</title>
 </head>
 <body>
-<script src="{% static "js/jquery-3.4.1.min.js" %}"></script>
-<script src="{% static "js/popper-1.16.0.min.js" %}"></script>
-<script src="{% static "js/bootstrap-4.4.1.min.js" %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="{% static "/js/bootstrap-4.4.1/bootstrap.min.js" %}"></script>
 <script src="{% static "/js/scripts.js" %}"></script>
 <div class="message-element">
     {% for message in messages %}
@@ -49,7 +51,7 @@
         $(".toast").toast("show");
     })
 </script>
-<script src="{% static "js/fontawesome.js" %}"></script>
+<script src="{% static "/js/fontawesome.js" %}"></script>
 <script src="{% static "/js/sidebar.js" %}"></script>
 {% include "shared/add_edit_item_modal.html" %}
 </body>
