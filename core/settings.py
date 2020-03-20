@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'account',
     'pages',
     'shopping_list',
+    'settings',
 ]
 
 MIDDLEWARE = [

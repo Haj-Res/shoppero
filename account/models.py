@@ -1,3 +1,5 @@
+import os
+import uuid
 from typing import Optional, List
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -10,6 +12,13 @@ from django.utils.translation import ugettext_lazy as _
 from account.managers import UserManager
 from core.models import SoftDeleteModel
 from utils.send_mail import send_mail
+
+
+def avatar_file_path(instance, filename):
+    """Generate file path for new recipe image"""
+    ext = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{ext}'
+    return os.path.join('avatars/', filename)
 
 
 class User(AbstractBaseUser, SoftDeleteModel, PermissionsMixin):
@@ -42,12 +51,21 @@ class User(AbstractBaseUser, SoftDeleteModel, PermissionsMixin):
 
 
 class Profile(models.Model):
+    DEFAULT_AVATAR = 'default-profile-image.png'
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
+    avatar = models.ImageField(default=DEFAULT_AVATAR,
+                               upload_to=avatar_file_path)
+    _default_avatar = models.ImageField(default=DEFAULT_AVATAR,
+                                        upload_to=avatar_file_path)
 
     def __str__(self):
         return self.user.email
+
+    def delete_avatar(self):
+        self.avatar = self._default_avatar
 
 
 @receiver(post_save, sender=User)

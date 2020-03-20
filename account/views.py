@@ -72,7 +72,3 @@ class ActivateView(View):
         else:
             logger.info('Activation failed')
             return render(self.request, 'registration/activate.html')
-
-
-class SettingsView(TemplateView):
-    template_name = 'settings/settings.html'

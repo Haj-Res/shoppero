@@ -22,6 +22,7 @@ body {
 
 .hint {
     color: grey !important;
+    border-color: darkgrey !important;
 }
 
 .error {
@@ -355,4 +356,37 @@ button.bg-secondary:focus {
     border-right: 5px solid var(--primary);
     border-radius: 15px;
 
+}
+
+.custom-form-group {
+    padding-left: 1rem !important;
+}
+
+.custom-form-group label {
+    font-size: 1rem;
+    display: block;
+}
+
+.custom-form-group label small {
+    border-bottom: 1px solid darkgrey;
+    color: grey;
+    padding-right: 1rem;
+    padding-left: 0.25rem;
+    font-weight: 400;
+}
+
+.custom-form-group input {
+    font-weight: 200;
+    border: 1px solid rgba(100, 100, 100, 0.1);
+    border-bottom: 1px solid darkgrey;
+    background-color: white;
+    margin-left: 1rem;
+    font-size: 1rem;
+    line-height: 1.4rem;
+    padding: 5px 15px;
+
+}
+
+.custom-form-group input:focus {
+    border: 1px solid var(--primary);
 }
