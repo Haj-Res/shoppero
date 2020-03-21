@@ -117,7 +117,7 @@ class CustomLogoutView(TemplateView):
         self.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        res = super(CustomLogoutView, self).get(request, *args, **kwargs)
+        super(CustomLogoutView, self).get(request, *args, **kwargs)
         return redirect('auth_login')
 
 
@@ -129,7 +129,6 @@ class TwoFactorLoginView(View):
         pk = force_text(urlsafe_base64_decode(uidb64))
         if not get_user_model().objects.filter(pk=pk).exists():
             return redirect('auth_login')
-        token_2 = force_text(urlsafe_base64_decode(utokenb64))
         form = self.form_class()
         return render(request, self.template_name, {'form': form})
 
