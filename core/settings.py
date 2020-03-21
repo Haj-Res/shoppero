@@ -108,6 +108,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+TWO_FACTOR_TOKEN_LENGTH = int(os.environ.get('TWO_FACTOR_TOKEN_LEN'))
+TWO_FACTOR_TOKEN_VALID_MIN = int(
+    os.environ.get('TWO_FACTOR_TOKEN_VALID_MINUTES'))
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -139,7 +143,7 @@ MEDIAFILES_DIRS = [
 AUTH_USER_MODEL = 'account.User'
 
 # Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')

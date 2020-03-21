@@ -22,14 +22,21 @@ class ProfileViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
 
+    def get_object(self):
+        """
+        Get this endpoint's instance object
+        :return: authenticated user's profile
+        """
+        return self.request.user.profile
+
     def patch(self, request):
         """
         Endpoint for updating basic profile information
         :param request: DRF request
-        :return: DRF Response object containing serialized data or 
+        :return: DRF Response object containing serialized data or
         submission errors and status
         """
-        instance = request.user.profile
+        instance = self.get_object()
         serializer = self.serializer_class(instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -46,8 +53,11 @@ class PasswordViewSet(ViewSet):
     model = get_user_model()
 
     def get_object(self):
-        obj = self.request.user
-        return obj
+        """
+        Get this endpoint's instance object
+        :return: return authenticated user
+        """
+        return self.request.user
 
     def update(self, request, *args, **kwargs):
         """
@@ -75,6 +85,13 @@ class AvatarViewSet(ViewSet):
     serializer_class = AvatarSerializer
     permission_classes = (IsAuthenticated,)
 
+    def get_object(self):
+        """
+        Method to get the instance of the objects for the endpoint
+        :return: authenticated user's profile object
+        """
+        return self.request.user.profile
+
     def post(self, request, *args, **kwargs):
         """
         Endpoint for changing the user's avatar image
@@ -84,7 +101,7 @@ class AvatarViewSet(ViewSet):
         """
         logger.info('User %d changing avatar %s', request.user.id,
                     request.data)
-        instance = request.user.profile
+        instance = self.get_object()
         serializer = self.serializer_class(instance, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -103,7 +120,7 @@ class AvatarViewSet(ViewSet):
         :return: Response with default avatar URL and http status
         """
         logger.info('User %d deleting avatar')
-        instance = request.user.profile
+        instance = self.get_object()
         if instance.avatar != Profile.DEFAULT_AVATAR:
             instance.avatar.delete(save=True)
             instance.avatar = Profile.DEFAULT_AVATAR

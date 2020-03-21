@@ -104,3 +104,8 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.label_suffix = ""
+
+
+class TwoFactorForm(forms.Form):
+    token = forms.CharField(label=_('Authentication token'), max_length=12,
+                            label_suffix='')
