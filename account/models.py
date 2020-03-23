@@ -106,7 +106,7 @@ class Security(models.Model):
         self.save()
         self.send_token_email()
 
-    def login_successful(self):
+    def reset_token_data(self):
         """Reset token data used to confirm login"""
         self.token = ''
         self.token_2 = ''
@@ -122,6 +122,12 @@ class Security(models.Model):
             'token': self.token
         })
         self.user.email_user(subject, message)
+
+    def is_token_valid(self, token: str, token_2: str) -> bool:
+        """Check if entered two factor auth token is valid"""
+        return (self.token == token and
+                self.token_2 == token_2 and
+                self.valid_until >= timezone.now())
 
 
 @receiver(post_save, sender=User)

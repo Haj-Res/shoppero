@@ -9,7 +9,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, redirect, resolve_url
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -139,9 +138,8 @@ class TwoFactorLoginView(View):
             token_2 = force_text(urlsafe_base64_decode(utokenb64))
             try:
                 user = User.objects.get(pk=pk)
-                if (user.security.token == form.cleaned_data['token'] and
-                        user.security.token_2 == token_2 and
-                        user.security.valid_until >= timezone.now()):
+                token = form.cleaned_data['token']
+                if user.security.is_token_valid(token, token_2):
                     login(request, user)
                     redirect_url = resolve_url(settings.LOGIN_REDIRECT_URL)
                 else:

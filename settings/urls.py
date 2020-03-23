@@ -1,7 +1,7 @@
 from django.urls import path
 
 from settings.views import SettingsView, ProfileViewSet, PasswordViewSet, \
-    AvatarViewSet
+    AvatarViewSet, TwoFactorViewSet
 
 urlpatterns = [
     path('', SettingsView.as_view(), name='settings'),
@@ -14,4 +14,10 @@ urlpatterns = [
     path('change-avatar/',
          AvatarViewSet.as_view({'post': 'post', 'delete': 'delete'}),
          name='change-avatar'),
+    path('two-factor/',
+         TwoFactorViewSet.as_view({'get': 'get'}),
+         name='two-factor'),
+    path('two-factor/<slug:uidb64>/<slug:utokenb64>/',
+         TwoFactorViewSet.as_view({'post': 'post'}),
+         name='two-factor-toggle')
 ]

@@ -1,3 +1,228 @@
 <div class="bg-light pb-5 pt-3 px-4 border-bottom border-secondary">
-    <h2 class="mt-0">Security settings</h2>
+    <div class="col-12 pl-0">
+        <h2 id="security" class="mt-0">Security settings:</h2>
+        <h5>Password management</h5>
+        <div class="col-12 pl-0 my-3 change-password-container mx-n4 py-3">
+            <form id="change-password-form" action="{% url "change-password" %}"
+                  method="post">
+                <div class="custom-form-group">
+                    <label for="old_password"><small>Old
+                        Password</small></label>
+                    <input type="password" id="old_password" name="old_password"
+                           placeholder="Your old password" autocomplete="off" required>
+                    <div id="old_password_errors" class="error pl-3"></div>
+
+                    <label class="mt-3" for="new_password"><small>New
+                        Password</small></label>
+                    <input type="password" id="new_password" name="new_password"
+                           placeholder="Your new password" autocomplete="off" required>
+                    <div id="new_password_errors" class="error pl-3"></div>
+                    <label for="confirm_password"><small>Confirm
+                        password</small></label>
+                    <input type="password" id="confirm_password" name="confirm_password"
+                           placeholder="Confirm new password" autocomplete="off" required>
+                    <div id="confirm_password_errors" class="error pl-3"></div>
+                </div>
+                <div class="col-12 mt-4">
+                    <button type="button" id="cancel-password-change"
+                            class="btn btn-secondary mr-3">Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">Submit
+                    </button>
+                </div>
+
+            </form>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-12 mb-3">
+            <button id="change-password-btn" class="btn btn-block btn-primary">
+                Change Password
+            </button>
+        </div>
+    </div>
+    <div class="col-12 pl-0">
+        <h5>
+            <span data-toggle="tooltip" data-placement="top"
+                  title="Two factor authentication is an additional security measure.
+                  When enabled, during the login process the user will receive a code 
+                  via email which they need to enter in order to proceed with logging in.">
+                Two Factor Authentication:  <small class="ml-1 text-primary">
+                <i class="position-absolute fas fa-question-circle"></i></small></span>
+        </h5>
+        <div class="col-12 pl-0 my-3 mx-n4">
+            <div class="two-factor-confirmation py-3 px-5">
+                <p>Do you want to disable Two Factor Authentication? This will
+                    reduce the security of your account.</p>
+                <button id="two-factor-cancel-btn" class="btn btn-secondary mr-2">
+                    Cancel
+                </button>
+                <button id="two-factor-get-code" class="btn btn-primary"
+                        data-url="{% url "two-factor" %}">
+                    {% if request.user.security.two_factor %}
+                        Disable 2FA
+                    {% else %}
+                        Enable 2FA
+                    {% endif %}
+                </button>
+            </div>
+            <div class="two-factor-container py-3 px-5">
+                <form id="two-factor-form" action="." method="post">
+                    <p>The confirmation code was sent to your email. Enter the
+                        code to confirm the change.</p>
+                    <div class="form-group col-md-4 col-sm-8 pl-0">
+                        <label for="token" class="sr-only">Token</label>
+                        <input id="token" name="token" class="form-control" type="text" placeholder="Confirmation code"
+                               required>
+                    </div>
+                    <button id="two-factor-cancel-form-btn" type="button" class="btn btn-secondary mr-2">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">Confirm
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-12 mb-3">
+            <button id="two-factor-btn" class="btn btn-block btn-primary" data-enabled="{{ request.user.security.two_factor | lower }}">
+                Toggle 2FA
+            </button>
+        </div>
+    </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+        $('#two-factor-btn').on('click', function (e) {
+            $(this).hide();
+            $('.two-factor-confirmation').addClass('show')
+        });
+
+        $('#two-factor-cancel-btn').on('click', function (e) {
+            $('.two-factor-confirmation').removeClass('show');
+            $('#two-factor-btn').show();
+        });
+        $('#two-factor-cancel-form-btn').on('click', function (e) {
+            $('.two-factor-container').removeClass('show');
+            $('#two-factor-btn').show();
+        });
+        $('#two-factor-get-code').on('click', function (e) {
+            const url = $(this).data('url');
+            $.ajax({
+                headers: getHeaders(),
+                url: url,
+                type: 'get',
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    $('#two-factor-form').attr('action', response.url);
+                    $('.two-factor-confirmation').removeClass('show');
+                    $('.two-factor-container').addClass('show');
+                },
+                error: function (response) {
+
+                }
+            })
+        });
+        $('#two-factor-form').submit(function (e) {
+            e.preventDefault();
+            const form = document.querySelector('#two-factor-form');
+            if (form.checkValidity()) {
+                const data = {'token': $('#token').val()};
+                const url = $(this).attr('action');
+                $.ajax({
+                    headers: getHeaders(),
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        createToastMessage(response.message, 'success');
+                        $('.two-factor-container').removeClass('show');
+                        $('#two-factor-btn').show()
+                        const $btn = $('#two-factor-get-code');
+                        if ($btn.html().trim() == 'Disable 2FA') {
+                            $btn.html('Enable 2FA');
+                        } else {
+                            $btn.html('Disable 2FA');
+                        }
+                    },
+                    error: function (response) {
+                        displayErrors(response.responseJSON);
+                    }
+                })
+            }
+        });
+        $('#change-password-btn').on('click', function () {
+            const $container = $('.change-password-container');
+            if (!$container.hasClass('show')) {
+                $container.addClass('show');
+                $('#old_password').focus();
+                $(this).hide();
+            }
+        });
+        $('#cancel-password-change').on('click', function () {
+            const $container = $('.change-password-container');
+            if ($container.hasClass('show')) {
+                cleanPasswordForm();
+                $container.removeClass('show');
+                $(this).html('Change Password');
+                $('#change-password-btn').show();
+            }
+        });
+
+        function cleanPasswordForm() {
+            $('#old_password').val('');
+            $('#new_password').val('');
+            $('#new_password_errors').html();
+            $('#confirm_password').val('');
+            $('#confirm_password_errors').html();
+            $('#old_password_errors').html();
+        }
+
+        $('#change-password-form').submit(function (e) {
+            e.preventDefault();
+            const form = document.querySelector('#change-password-form');
+            if (form.checkValidity()) {
+                const $pass1_input = $('#new_password');
+                const $pass2_input = $('#confirm_password');
+                const pass1 = $pass1_input.val().trim();
+                const pass2 = $pass2_input.val().trim();
+                if (pass1 !== pass2) {
+                    $pass1_input.val('');
+                    $pass1_input.focus();
+                    $pass2_input.val();
+                    displayErrors({
+                        'new_password': ['Passwords do not match'],
+                        'confirm_password': ['Passwords do not match']
+                    })
+                } else {
+                    const data = {
+                        'old_password': $('#old_password').val().trim(),
+                        'new_password': pass1
+                    };
+                    $.ajax({
+                        headers: getHeaders(),
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify(data),
+                        success: function (response, textStatus, jqHXR) {
+                            cleanPasswordForm();
+                            $('.change-password-container').removeClass('show');
+                            $('#change-password-btn').show();
+                            createToastMessage(response.message, 'success');
+                        },
+                        error: function (response) {
+                            console.log(response)
+                            console.log(response.responseJSON)
+                            displayErrors(response.responseJSON)
+                        }
+                    })
+                }
+            }
+        })
+    })
+</script>

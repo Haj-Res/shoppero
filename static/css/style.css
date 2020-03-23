@@ -390,3 +390,46 @@ button.bg-secondary:focus {
 .custom-form-group input:focus {
     border: 1px solid var(--primary);
 }
+
+.change-password-container, .two-factor-confirmation, .two-factor-container {
+    border: none;
+    height: 0 !important;
+    padding: 0 2rem !important;
+    overflow: hidden;
+    background-color: var(--primary) !important;
+    -webkit-transition: height 0.4s linear, background-color 0.4s linear;
+    -moz-transition: height 0.4s linear, background-color 0.4s linear;
+    -ms-transition: height 0.4s linear, background-color 0.4s linear;
+    -o-transition: height 0.4s linear, background-color 0.4s linear;
+    transition: height 0.4s linear, background-color 0.4s linear;
+}
+
+.change-password-container.show, .two-factor-confirmation.show,
+.two-factor-container.show {
+    border-top: 2px solid var(--primary);
+    border-bottom: 2px solid var(--primary);
+    overflow: hidden !important;
+    padding: 1rem 2rem !important;
+    background-color: var(--light) !important;
+    -webkit-transition: height 0.4s linear, background-color 0.4s linear;
+    -moz-transition: height 0.4s linear, background-color 0.4s linear;
+    -ms-transition: height 0.4s linear, background-color 0.4s linear;
+    -o-transition: height 0.4s linear, background-color 0.4s linear;
+    transition: height 0.4s linear, background-color 0.4s linear;
+}
+
+.change-password-container.show {
+    height: 380px !important;
+}
+
+.two-factor-confirmation.show {
+    height: 120px !important;
+}
+
+.two-factor-container.show {
+    height: 180px !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
