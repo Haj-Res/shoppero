@@ -1,17 +1,23 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib import messages
+from django.contrib.auth import get_user_model, logout, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
-from django.shortcuts import render
+from django.shortcuts import render, redirect, resolve_url
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import FormView, TemplateView
 
-from account.forms import SignUpForm
+from account.forms import SignUpForm, TwoFactorForm
+from account.models import Security
 from account.tokens import account_activation_token
 from core import string_constants
 
@@ -64,11 +70,84 @@ class ActivateView(View):
         if user is not None \
                 and account_activation_token.check_token(user, token):
             User.objects.filter(pk=user.id).update(is_active=True)
-            # user.is_active = True
-            # user.save()
             user.refresh_from_db()
             logger.info('User %s activated', user)
             return render(request, 'registration/activation_complete.html')
         else:
             logger.info('Activation failed')
             return render(self.request, 'registration/activate.html')
+
+
+class CustomLoginView(LoginView):
+    def form_valid(self, form):
+        res = super(CustomLoginView, self).form_valid(form)
+        user = self.request.user
+        has_security = False
+        try:
+            has_security = user.security is not None
+        except Exception as e:
+            logger.error(str(e))
+        if not has_security:
+            Security.objects.create(user=user)
+            user.security.save()
+        if user.security.two_factor:
+            user.security.generate_token()
+            token_2 = user.security.token_2
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            utokenb64 = urlsafe_base64_encode(force_bytes(token_2))
+            logout(self.request)
+            return redirect('auth_2fact_login', uidb64=uidb64,
+                            utokenb64=utokenb64)
+        return res
+
+
+class CustomLogoutView(TemplateView):
+    template_name = 'registration/login.html'
+    extra_context = None
+
+    @method_decorator(never_cache)
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        logout(request)
+        messages.info(request, 'Logged out')
+        return super(CustomLogoutView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.get(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        super(CustomLogoutView, self).get(request, *args, **kwargs)
+        return redirect('auth_login')
+
+
+class TwoFactorLoginView(View):
+    template_name = 'registration/two_factor.html'
+    form_class = TwoFactorForm
+
+    def get(self, request, uidb64=None, utokenb64=None):
+        pk = force_text(urlsafe_base64_decode(uidb64))
+        if not get_user_model().objects.filter(pk=pk).exists():
+            return redirect('auth_login')
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, uidb64=None, utokenb64=None):
+        form = self.form_class(data=request.POST)
+        if form.is_valid():
+            pk = force_text(urlsafe_base64_decode(uidb64))
+            token_2 = force_text(urlsafe_base64_decode(utokenb64))
+            try:
+                user = User.objects.get(pk=pk)
+                token = form.cleaned_data['token']
+                if user.security.is_token_valid(token, token_2):
+                    login(request, user)
+                    redirect_url = resolve_url(settings.LOGIN_REDIRECT_URL)
+                else:
+                    user.security.login_attempts += 1
+                    user.security.save()
+                    messages.error(request, 'Invalid authentication code')
+                    return render(request, self.template_name, {'form': form})
+            except User.DoesNotExist:
+                messages.error(request, 'Submission error')
+                redirect_url = resolve_url('auth_login')
+            return redirect(redirect_url)

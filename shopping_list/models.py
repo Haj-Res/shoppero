@@ -10,6 +10,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from account.models import Profile
 from core.models import SoftDeleteModel
 from utils.send_mail import send_mail
 
@@ -92,6 +93,8 @@ class SharedShoppingList(SoftDeleteModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
                              on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
+    access_level = models.CharField(choices=Profile.SHARE_LEVEL_CHOICES,
+                                    default=Profile.READ_ACCESS, max_length=10)
 
     class Meta:
         db_table = 'shared_shopping_list'

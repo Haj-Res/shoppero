@@ -1,17 +1,23 @@
-from django.contrib.auth.views import LoginView, PasswordResetView, \
-    LogoutView, PasswordChangeView, PasswordResetConfirmView, \
+from django.contrib.auth.views import PasswordResetView, \
+    PasswordChangeView, PasswordResetConfirmView, \
     PasswordResetDoneView, PasswordResetCompleteView, PasswordChangeDoneView
 from django.urls import path
 
 from account.forms import CustomPasswordResetForm, LoginForm
 from account.views import RegistrationView, ActivateView, \
-    RegistrationSuccessView
+    RegistrationSuccessView, CustomLoginView, CustomLogoutView, \
+    TwoFactorLoginView
 
 urlpatterns = [
-    path('login/', LoginView.as_view(form_class=LoginForm), name='auth_login'),
+    path('login/',
+         CustomLoginView.as_view(form_class=LoginForm),
+         name='auth_login'),
     path('logout/',
-         LogoutView.as_view(template_name='registration/logout.html'),
+         CustomLogoutView.as_view(),
          name='auth_logout'),
+    path('login/step-2/<slug:uidb64>/<slug:utokenb64>/',
+         TwoFactorLoginView.as_view(),
+         name='auth_2fact_login'),
 
     # registration
     path('register/', RegistrationView.as_view(),
@@ -37,5 +43,5 @@ urlpatterns = [
     path('change-password/', PasswordChangeView.as_view(),
          name='auth_password_change'),
     path('change-password/done/', PasswordChangeDoneView.as_view(),
-         name='password_change_done')
+         name='password_change_done'),
 ]

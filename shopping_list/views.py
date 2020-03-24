@@ -82,7 +82,10 @@ class ItemListView(View):
     def get(self, request, *args, **kwargs):
         logger.info('User %d requesting item list', request.user.id)
         order_param = request.GET.get('order_by', 'id')
-        items = Item.objects.filter(deleted__isnull=True).all().order_by(
+        items = Item.objects.filter(
+            deleted__isnull=True,
+            user=request.user
+        ).all().order_by(
             order_param)
         context = {'items': items}
         return HttpResponse(render(request, self._template_name, context))
@@ -214,7 +217,7 @@ class ItemViewSet(ModelViewSet):
         return JsonResponse(context)
 
     def update(self, request, *args, **kwargs):
-        logger.info('User %d updating item %d', request.user.pk, args[0])
+        logger.info('User %d updating item', request.user.pk)
         res = super(ItemViewSet, self).update(request, *args, **kwargs)
         res.data.update({
             'url': reverse('api_item_single', args=[res.data['id']])
