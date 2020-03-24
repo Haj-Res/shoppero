@@ -228,3 +228,32 @@ function initSubmitTwoFactorForm() {
         }
     });
 }
+
+/*********************************
+ * Default share level functions *
+ *********************************/
+
+function initSubmitShareLevelForm() {
+    $('#share-level-form').submit(function (e) {
+        e.preventDefault();
+        const form = document.querySelector('#share-level-form');
+        if (form.checkValidity()) {
+            const url = $(this).attr('action');
+            const data = {'share_level': $('#share_level').val()};
+            const method = 'PATCH';
+            jsonRequest(url, data, method).then(function (response) {
+                createToastMessage('Share Level updated.', 'success')
+            }).catch(function (response) {
+                if ('responseJSON' in response) {
+                    const data = response.responseJSON;
+                    displayErrors(data);
+                } else {
+                    createToastMessage(
+                        'Submission error. Please try later.',
+                        'error'
+                    );
+                }
+            })
+        }
+    })
+}

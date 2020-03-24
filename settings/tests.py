@@ -12,6 +12,7 @@ from account.models import Profile
 BASIC_INFORMATION_URL = reverse('profile')
 PASSWORD_URL = reverse('change-password')
 AVATAR_CHANGE_URL = reverse('change-avatar')
+SHARE_LEVEL_URL = reverse('share-level')
 
 
 def sample_user(email='user@shoppero.com', password='pass'):
@@ -50,6 +51,13 @@ class TestUserSettingsPublic(TestCase):
         avatar = generate_photo_file()
         payload = {'avatar': avatar}
         res = self.client.post(AVATAR_CHANGE_URL, payload, format='multipart')
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_change_default_share_level_fail(self):
+        """Test that the api for changing user default share level
+        is not public"""
+        payload = {'share_level': Profile.COMPLETE_ACCESS}
+        res = self.client.patch(SHARE_LEVEL_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -111,3 +119,22 @@ class TestUserSettingsPrivate(TestCase):
         res = self.client.delete(AVATAR_CHANGE_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(Profile.DEFAULT_AVATAR, res.data['avatar'])
+
+    def test_change_share_level_success(self):
+        """Test that user can change their default share level successfully"""
+        self.assertEqual(self.user.profile.share_level, Profile.READ_ACCESS)
+        payload = {'share_level': Profile.COMPLETE_ACCESS}
+        res = self.client.patch(SHARE_LEVEL_URL, payload)
+        self.user.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.user.profile.share_level,
+                         Profile.COMPLETE_ACCESS)
+
+    def test_change_share_level_invalid_choice(self):
+        """Test that the user can no change default share level to
+        an invalid choice"""
+        payload = {'share_level': 'invalid_string'}
+        res = self.client.patch(SHARE_LEVEL_URL, payload)
+        self.user.profile.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(self.user.profile.share_level, Profile.READ_ACCESS)

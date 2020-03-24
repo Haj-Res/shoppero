@@ -60,12 +60,22 @@ class User(AbstractBaseUser, SoftDeleteModel, PermissionsMixin):
 
 class Profile(models.Model):
     DEFAULT_AVATAR = 'default-profile-image.png'
+    READ_ACCESS = 'read'
+    COMPLETE_ACCESS = 'complete'
+    FULL_ACCESS = 'all'
+    SHARE_LEVEL_CHOICES = [
+        (READ_ACCESS, 'Read only'),
+        (COMPLETE_ACCESS, 'Complete tasks'),
+        (FULL_ACCESS, 'Edit items')
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(default=DEFAULT_AVATAR,
                                upload_to=avatar_file_path)
+    share_level = models.CharField(choices=SHARE_LEVEL_CHOICES,
+                                   default=READ_ACCESS, max_length=10)
 
     def __str__(self):
         return self.user.email

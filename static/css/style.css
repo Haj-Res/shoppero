@@ -378,13 +378,17 @@ button.bg-secondary:focus {
 .custom-form-group input {
     font-weight: 200;
     border: 1px solid rgba(100, 100, 100, 0.1);
+    border-radius: 4px;
     border-bottom: 1px solid darkgrey;
     background-color: white;
     margin-left: 1rem;
     font-size: 1rem;
     line-height: 1.4rem;
     padding: 5px 15px;
+}
 
+.custom-form-group input:focus {
+    border-width: 2px !important;
 }
 
 .custom-form-group input:focus {
@@ -432,4 +436,9 @@ button.bg-secondary:focus {
 
 .text-primary {
     color: var(--primary) !important;
+}
+
+select.form-control {
+    border-color: var(--primary) !important;
+    border: 1px solid;
 }

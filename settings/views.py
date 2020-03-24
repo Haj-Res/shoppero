@@ -13,7 +13,7 @@ from rest_framework.viewsets import ViewSet
 from account.forms import TwoFactorForm
 from account.models import Profile
 from settings.serializers import ProfileSerializer, ChangePasswordSerializer, \
-    AvatarSerializer
+    AvatarSerializer, DefaultShareLevelSerializer
 
 logger = logging.getLogger('shoppero')
 
@@ -114,7 +114,7 @@ class AvatarViewSet(ViewSet):
             logger.info(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            logger.error(serializer.errors)
+            logger.debug(serializer.errors)
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -154,7 +154,7 @@ class TwoFactorViewSet(ViewSet):
 
     def post(self, request, uidb64=None, utokenb64=None):
         logger.info('User %d toggling 2FA')
-        logger.info(request.data)
+        logger.debug(request.data)
         form = self.form_class(data=request.data)
         if form.is_valid():
             user = self.get_object()
@@ -179,3 +179,31 @@ class TwoFactorViewSet(ViewSet):
                 return Response({'message': 'Invalid authentication code'},
                                 status=status.HTTP_400_BAD_REQUEST)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DefaultShareLevelViewSet(ViewSet):
+    """
+    View for updating the logged in user's default shopping list share level.
+    """
+    serializer_class = DefaultShareLevelSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self) -> Profile:
+        """
+        Method that returns the authenticated user's profile object
+        :return: Profile
+        """
+        return self.request.user.profile
+
+    def patch(self, request):
+        logger.info('User %d changing default share level')
+        logger.debug(request.data)
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            logger.debug(serializer.errors)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)

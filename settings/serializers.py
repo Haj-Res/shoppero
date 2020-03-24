@@ -21,3 +21,9 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ('avatar',)
+
+
+class DefaultShareLevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('share_level',)
