@@ -92,3 +92,31 @@ function createToastMessage(message, level, duration, title) {
     $('.message-element').append(toast_element);
     $(`#${timestamp}`).toast('show');
 }
+
+function initTooltips() {
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+}
+
+function jsonRequest(url, data, method) {
+    if (method === undefined) {
+        method = 'GET'
+    }
+    return $.ajax({
+        headers: getHeaders(),
+        url: url,
+        type: method,
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        data: data ? JSON.stringify(data) : data,
+        success: function (response) {
+            const res = {'success': true, 'response': response};
+            return res
+        },
+        error: function (response) {
+            const res = {'success': false, 'response': response};
+            return res
+        }
+    })
+}

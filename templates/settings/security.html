@@ -90,139 +90,16 @@
 </div>
 <script>
     $(document).ready(function () {
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-        $('#two-factor-btn').on('click', function (e) {
-            $(this).hide();
-            $('.two-factor-confirmation').addClass('show')
-        });
+        initTooltips();
 
-        $('#two-factor-cancel-btn').on('click', function (e) {
-            $('.two-factor-confirmation').removeClass('show');
-            $('#two-factor-btn').show();
-        });
-        $('#two-factor-cancel-form-btn').on('click', function (e) {
-            $('.two-factor-container').removeClass('show');
-            $('#two-factor-btn').show();
-        });
-        $('#two-factor-get-code').on('click', function (e) {
-            const url = $(this).data('url');
-            $.ajax({
-                headers: getHeaders(),
-                url: url,
-                type: 'get',
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                success: function (response) {
-                    $('#two-factor-form').attr('action', response.url);
-                    $('.two-factor-confirmation').removeClass('show');
-                    $('.two-factor-container').addClass('show');
-                },
-                error: function (response) {
+        initPasswordChangeBtn();
+        initCancelPasswordChangeBtn();
+        initSubmitPasswordChangeForm();
 
-                }
-            })
-        });
-        $('#two-factor-form').submit(function (e) {
-            e.preventDefault();
-            const form = document.querySelector('#two-factor-form');
-            if (form.checkValidity()) {
-                const data = {'token': $('#token').val()};
-                const url = $(this).attr('action');
-                $.ajax({
-                    headers: getHeaders(),
-                    url: url,
-                    type: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    data: JSON.stringify(data),
-                    success: function (response) {
-                        createToastMessage(response.message, 'success');
-                        $('.two-factor-container').removeClass('show');
-                        $('#two-factor-btn').show()
-                        const $btn = $('#two-factor-get-code');
-                        if ($btn.html().trim() == 'Disable 2FA') {
-                            $btn.html('Enable 2FA');
-                        } else {
-                            $btn.html('Disable 2FA');
-                        }
-                    },
-                    error: function (response) {
-                        displayErrors(response.responseJSON);
-                    }
-                })
-            }
-        });
-        $('#change-password-btn').on('click', function () {
-            const $container = $('.change-password-container');
-            if (!$container.hasClass('show')) {
-                $container.addClass('show');
-                $('#old_password').focus();
-                $(this).hide();
-            }
-        });
-        $('#cancel-password-change').on('click', function () {
-            const $container = $('.change-password-container');
-            if ($container.hasClass('show')) {
-                cleanPasswordForm();
-                $container.removeClass('show');
-                $(this).html('Change Password');
-                $('#change-password-btn').show();
-            }
-        });
-
-        function cleanPasswordForm() {
-            $('#old_password').val('');
-            $('#new_password').val('');
-            $('#new_password_errors').html();
-            $('#confirm_password').val('');
-            $('#confirm_password_errors').html();
-            $('#old_password_errors').html();
-        }
-
-        $('#change-password-form').submit(function (e) {
-            e.preventDefault();
-            const form = document.querySelector('#change-password-form');
-            if (form.checkValidity()) {
-                const $pass1_input = $('#new_password');
-                const $pass2_input = $('#confirm_password');
-                const pass1 = $pass1_input.val().trim();
-                const pass2 = $pass2_input.val().trim();
-                if (pass1 !== pass2) {
-                    $pass1_input.val('');
-                    $pass1_input.focus();
-                    $pass2_input.val();
-                    displayErrors({
-                        'new_password': ['Passwords do not match'],
-                        'confirm_password': ['Passwords do not match']
-                    })
-                } else {
-                    const data = {
-                        'old_password': $('#old_password').val().trim(),
-                        'new_password': pass1
-                    };
-                    $.ajax({
-                        headers: getHeaders(),
-                        url: $(this).attr('action'),
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        data: JSON.stringify(data),
-                        success: function (response, textStatus, jqHXR) {
-                            cleanPasswordForm();
-                            $('.change-password-container').removeClass('show');
-                            $('#change-password-btn').show();
-                            createToastMessage(response.message, 'success');
-                        },
-                        error: function (response) {
-                            console.log(response)
-                            console.log(response.responseJSON)
-                            displayErrors(response.responseJSON)
-                        }
-                    })
-                }
-            }
-        })
+        initShowTwoFactorConfBtn();
+        initCancelTwoFactorConfBtn();
+        initGetTwoFactorCodeBtn();
+        initCancelTwoFactorFromBtn();
+        initSubmitTwoFactorForm();
     })
 </script>
