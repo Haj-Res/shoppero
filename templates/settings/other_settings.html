@@ -24,9 +24,20 @@
             </div>
         </form>
     </div>
+    <div class="row px-3">
+        <h5>Delete account:</h5>
+        <div class="col-12 pl-0">
+            <button id="delete-account"
+                    class="btn btn-danger"
+                    data-url="{% url "delete-account-s1" %}">
+                Delete account
+            </button>
+        </div>
+    </div>
 </div>
 <script>
     $(document).ready(function () {
         initSubmitShareLevelForm();
+        initDeleteAccountBtn();
     })
 </script>

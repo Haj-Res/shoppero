@@ -1,0 +1,10 @@
+{% load i18n %}
+{% autoescape off %}
+    <p>Hi</p>
+    <p>You're receiving this email because you requested to delete your
+        account. To proceed with account
+        deletion, please follow
+        <a href="{{ domain }}{% url 'delete-account-s2' uidb64 token %}">this
+            link</a>.</p>
+    <p>We are sorry to see you go and hope you have a nice day.</p>
+{% endautoescape %}

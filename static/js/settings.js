@@ -257,3 +257,14 @@ function initSubmitShareLevelForm() {
         }
     })
 }
+
+function initDeleteAccountBtn() {
+    $('#delete-account').on('click', function (e) {
+        const url = $(this).data('url')
+        jsonRequest(url).then(function (response) {
+            createToastMessage(response.message, 'success');
+        }).catch(function (response) {
+            createSubmissionErrorToast();
+        })
+    })
+}

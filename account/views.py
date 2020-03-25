@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect, resolve_url
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.encoding import force_bytes, force_text
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views import View
 from django.views.decorators.cache import never_cache
@@ -62,7 +62,7 @@ class ActivateView(View):
     def get(self, request, uidb64, token):
         logger.info('Activation request for %s/%s', uidb64, token)
         try:
-            uid = force_text(urlsafe_base64_decode(uidb64))
+            uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
             logger.error(str(e))
@@ -125,7 +125,7 @@ class TwoFactorLoginView(View):
     form_class = TwoFactorForm
 
     def get(self, request, uidb64=None, utokenb64=None):
-        pk = force_text(urlsafe_base64_decode(uidb64))
+        pk = force_str(urlsafe_base64_decode(uidb64))
         if not get_user_model().objects.filter(pk=pk).exists():
             return redirect('auth_login')
         form = self.form_class()
@@ -134,8 +134,8 @@ class TwoFactorLoginView(View):
     def post(self, request, uidb64=None, utokenb64=None):
         form = self.form_class(data=request.POST)
         if form.is_valid():
-            pk = force_text(urlsafe_base64_decode(uidb64))
-            token_2 = force_text(urlsafe_base64_decode(utokenb64))
+            pk = force_str(urlsafe_base64_decode(uidb64))
+            token_2 = force_str(urlsafe_base64_decode(utokenb64))
             try:
                 user = User.objects.get(pk=pk)
                 token = form.cleaned_data['token']
