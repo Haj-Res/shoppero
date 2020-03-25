@@ -53,6 +53,14 @@
 </script>
 <script src="{% static "/js/fontawesome.js" %}"></script>
 <script src="{% static "/js/sidebar.js" %}"></script>
-{% include "shared/add_edit_item_modal.html" %}
+{# conditional modal elemens. Need to be in base template or #}
+{# they don't be on top of the page when loaded #}
+{% url 'shopping_list' as shopping_list %}
+{% url 'items' as items %}
+{% if request.path == items %}
+    {% include "shared/add_edit_item_modal.html" %}
+{% elif request.path == shopping_list %}
+    {% include "shared/confirm-delete-modal.html" %}
+{% endif %}
 </body>
 </html>

@@ -1,6 +1,10 @@
 /*****************************
  * Basic profile information *
  *****************************/
+
+/**
+ * Initialize submission of a new avatar image
+ */
 function initSubmitNewAvatarImage() {
     $('#avatarInput').change(function (e) {
         let fd = new FormData();
@@ -24,6 +28,11 @@ function initSubmitNewAvatarImage() {
     });
 }
 
+/**
+ * Initialize basic profile information form submission. Create a PATCH
+ * request to update user form. On successful update change data in the
+ * corresponding page elements. Otherwise display errors.
+ */
 function initSubmitProfileInformationForm() {
     $('#information-form').submit(function (e) {
         e.preventDefault();
@@ -49,6 +58,9 @@ function initSubmitProfileInformationForm() {
     })
 }
 
+/**
+ * Make DELETE request to delete the user's current avatar image
+ */
 function deleteAvatar() {
     const url = $('#avatarInput').data('url');
     const method = 'DELETE';
@@ -59,10 +71,18 @@ function deleteAvatar() {
     });
 }
 
+/**
+ * Open the "choose file" modal through JS. Used because the file input
+ * field is hidden and everything is done through one button.
+ */
 function chooseFile() {
     $('#avatarInput').trigger('click');
 }
 
+/**
+ * Display form for updating basic profile information and hide button
+ * that is used for triggering this function
+ */
 function showInformationForm() {
     $('#information-container').addClass('d-none');
     $('#information-form-container').removeClass('d-none');
@@ -75,6 +95,10 @@ function showInformationForm() {
     $('#first_name').focus();
 }
 
+/**
+ * Hide form for updating basic profile information and display button
+ * that is used for displaying the form
+ */
 function hideInformationForm() {
     $('#information-container').removeClass('d-none');
     $('#information-form-container').addClass('d-none');
@@ -86,6 +110,10 @@ function hideInformationForm() {
     $formBtns.removeClass('d-inline');
 }
 
+/**
+ * Update the data in the basic information form input fields
+ * @param data - object containing the user's first and last name
+ */
 function updateInformationForm(data) {
     $('#first_name').val(data.first_name);
     $('#last_name').val(data.last_name);
@@ -95,6 +123,10 @@ function updateInformationForm(data) {
  * Profile security settings *
  *****************************/
 
+/**
+ * Initialize button used for showing the change password form.
+ * Button displays form, focuses on the old password input and hides itself
+ */
 function initPasswordChangeBtn() {
     $('#change-password-btn').on('click', function () {
         const $container = $('.change-password-container');
@@ -106,6 +138,10 @@ function initPasswordChangeBtn() {
     });
 }
 
+/**
+ * Initialize button for canceling password change form.
+ * Clear and hide form, show button for displaying form.
+ */
 function initCancelPasswordChangeBtn() {
     $('#cancel-password-change').on('click', function () {
         const $container = $('.change-password-container');
@@ -118,6 +154,11 @@ function initCancelPasswordChangeBtn() {
     });
 }
 
+/**
+ * Initialize submitting password change form. Run HTML form validation,
+ * check that new password and confirmation password match. Make POST request.
+ * Hide form on success and display button or display errors on faild request
+ */
 function initSubmitPasswordChangeForm() {
     $('#change-password-form').submit(function (e) {
         e.preventDefault();
@@ -155,10 +196,9 @@ function initSubmitPasswordChangeForm() {
     })
 }
 
-/*****************************
- * Two Factor Authentication *
- *****************************/
-
+/**
+ * Clean change password form's inputs
+ */
 function cleanPasswordForm() {
     $('#old_password').val('');
     $('#new_password').val('');
@@ -168,6 +208,15 @@ function cleanPasswordForm() {
     $('#old_password_errors').html();
 }
 
+/*****************************
+ * Two Factor Authentication *
+ *****************************/
+
+
+/**
+ * Display the from with cancel and continue action for toggling 2FA
+ * and hide the button.
+ */
 function initShowTwoFactorConfBtn() {
     $('#two-factor-btn').on('click', function (e) {
         $(this).hide();
@@ -175,6 +224,9 @@ function initShowTwoFactorConfBtn() {
     });
 }
 
+/**
+ * Hide the from for toggling 2FA and display button
+ */
 function initCancelTwoFactorConfBtn() {
     $('#two-factor-cancel-btn').on('click', function (e) {
         $('.two-factor-confirmation').removeClass('show');
@@ -182,6 +234,10 @@ function initCancelTwoFactorConfBtn() {
     });
 }
 
+/**
+ * Make a GET request to app to send the confirmation code to user's email.
+ * Prepare toggle 2FA form and display it. Hide previous modal.
+ */
 function initGetTwoFactorCodeBtn() {
     $('#two-factor-get-code').on('click', function (e) {
         const url = $(this).data('url');
@@ -190,11 +246,14 @@ function initGetTwoFactorCodeBtn() {
             $('.two-factor-confirmation').removeClass('show');
             $('.two-factor-container').addClass('show');
         }).catch(function (response) {
-            createToastMessage('An error occurred. Please try again later.', 'error')
+            createSubmissionErrorToast()
         });
     });
 }
 
+/**
+ * Cancel toggling 2FA and hide the from.
+ */
 function initCancelTwoFactorFromBtn() {
     $('#two-factor-cancel-form-btn').on('click', function (e) {
         $('.two-factor-container').removeClass('show');
@@ -202,6 +261,11 @@ function initCancelTwoFactorFromBtn() {
     });
 }
 
+/**
+ * Submit the 2FA toggling. Make a POST request to server with with token.
+ * Display errors if they are returned from the server or hide the from
+ * and update elements to reflect the change. Display toast message.
+ */
 function initSubmitTwoFactorForm() {
     $('#two-factor-form').submit(function (e) {
         e.preventDefault();
@@ -233,6 +297,10 @@ function initSubmitTwoFactorForm() {
  * Default share level functions *
  *********************************/
 
+/**
+ * Initialize the Share Level from submit action. Create a PATCH request
+ * to the API with the share_level date. Display toast and errors if needed.
+ */
 function initSubmitShareLevelForm() {
     $('#share-level-form').submit(function (e) {
         e.preventDefault();
@@ -258,6 +326,10 @@ function initSubmitShareLevelForm() {
     })
 }
 
+/**
+ * Initialize button from deleting user's account. Makes a GET request
+ * that triggers the account delete sequence of actions.
+ */
 function initDeleteAccountBtn() {
     $('#delete-account').on('click', function (e) {
         const url = $(this).data('url')

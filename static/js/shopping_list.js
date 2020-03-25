@@ -3,6 +3,10 @@
  * Managing shopping lists form helper functions
  ***********************************************
  */
+
+/**
+ * Initialize button for archive the corresponding shopping list
+ */
 function initListArchiveBtn() {
     $('.archive-list').on('click', function (e) {
         const url = $(this).data('url');
@@ -10,6 +14,10 @@ function initListArchiveBtn() {
     })
 }
 
+
+/**
+ * Initialize button for showing delete confirmation modal
+ */
 function initListDeleteBtn() {
     $('.delete-list').off('click').on('click', function (e) {
         $('.btn-ok').data('url', $(this).data('url'));
@@ -17,6 +25,9 @@ function initListDeleteBtn() {
     })
 }
 
+/**
+ * Permanently delete a shopping list
+ */
 function initListDeleteConfirmBtn() {
     $('.btn-ok').on('click', function (e) {
         const url = $(this).data('url');
@@ -24,24 +35,29 @@ function initListDeleteConfirmBtn() {
     })
 }
 
+/**
+ * Helper function for deleting or archiving a list
+ * @param url - string value of the api endpoint
+ * @param method - string name of the method (patch or delete)
+ * @param toastMessage - string message to be shown to the user
+ */
 function deleteOrArchiveList(url, method, toastMessage) {
-    $.ajax({
-        headers: getHeaders(),
-        url: url,
-        type: method,
-        success: function (response, textStatus, jqHXR) {
-            if (response.status === 'success') {
-                const table = generateShoppingListTable(response.content);
-                $('#shopping-list-table tbody').html(table);
-                initListArchiveBtn();
-                initListDeleteBtn();
-                $('.modal').modal('hide');
-                createToastMessage(toastMessage, 'info');
-            }
-        }
-    })
+    jsonRequest(url, null, method).then(function (response) {
+        const table = generateShoppingListTable(response.content);
+        $('#shopping-list-table tbody').html(table);
+        initListArchiveBtn();
+        initListDeleteBtn();
+        $('.modal').modal('hide');
+        createToastMessage(toastMessage, 'info');
+    });
 }
 
+/**
+ * Generate the html code for the table containing all items in
+ * in the curent list
+ * @param items - array of item objects
+ * @returns {string} html code ready to be inserted in the table body tag
+ */
 function generateShoppingListTable(items) {
     let table = '';
     if (items.length > 0) {
@@ -69,6 +85,10 @@ function generateShoppingListTable(items) {
     return table;
 }
 
+/**
+ * Allow user to click whole row of a table and redirect the
+ * user to the clicked list view
+ */
 function initClickableShoppingListCell() {
     $('.clickable').on('click', function (e) {
         window.location.href = $(this).data('url');
@@ -80,20 +100,33 @@ function initClickableShoppingListCell() {
  Autocomplete items search helper functions
  ******************************************
  */
+
+/**
+ * Initialize item search for the shopping list form.
+ * Creates a get request to the api after user enters anything in the
+ * item name input as long as the input is longer or equal to 3 character.
+ */
 function initItemAutocompleteSearch() {
     const $elem = $('#item-name');
     $elem.on('input', function (e) {
         const val = $elem.val();
         if (val.length >= 3) {
             let url = $elem.data('url') + `?name=${val}`;
-            $.getJSON(url, function (result, textStatus, jqXHR) {
-                const dataList = itemListToDataList(result);
+            const method = 'GET';
+            jsonRequest(url, null, method).then(function (response) {
+                const dataList = itemListToDataList(response);
                 $('#item-datalist').html(dataList);
-            })
+            });
         }
     })
 }
 
+/**
+ * Helper function to convert the returned item search list
+ * to a list of html options tags
+ * @param items
+ * @returns {string}
+ */
 function itemListToDataList(items) {
     let dataList = '';
     items.forEach(item => {
@@ -107,6 +140,12 @@ data-price="${item.price}">${item.name}</option>`;
  *************************************
  Adding items to list helper functions
  *************************************
+ */
+
+/**
+ * Function for adding items to the shopping list table.
+ * @param rowMap - map necessary for editing rows in the
+ * shopping list items table
  */
 function initAddItemToListForm(rowMap) {
     const formSelector = '#shopping-list-item-form';
@@ -136,6 +175,9 @@ function initAddItemToListForm(rowMap) {
     });
 }
 
+/**
+ * Delete an item row form the shopping list table
+ */
 function initDeleteItemRow() {
     $('.delete-item-btn-row').off('click').on('click', function (e) {
         const $parent = $(this).parent().parent();
@@ -146,6 +188,10 @@ function initDeleteItemRow() {
     })
 }
 
+/**
+ * Clear the shopping list add item form and focus on name for
+ * easy and fast item addition.
+ */
 function clearShoppingListItemForm() {
     const $name = $('#item-name');
     $name.val('');
@@ -156,6 +202,11 @@ function clearShoppingListItemForm() {
     $name.focus()
 }
 
+/**
+ * Method that generates a list of items based on item data rows in the
+ * shopping list table
+ * @returns {[]}
+ */
 function collectShoppingListItemValues() {
     const $dataRows = $('.data');
     const items = [];
@@ -173,6 +224,12 @@ function collectShoppingListItemValues() {
     return items;
 }
 
+/**
+ * Helper function that generates the HTML code of td tags for
+ * a single item row
+ * @param item
+ * @returns {string}
+ */
 function createShoppingListItemRow(item) {
     let is_done = '';
     if (item.is_done) {
@@ -192,6 +249,11 @@ function createShoppingListItemRow(item) {
     return tableRow;
 }
 
+/**
+ * Helper function that populates the item addition form
+ * in the shopping list view when an item from the search list
+ * is selected.
+ */
 function itemInputOnChange() {
     const $elem = $('#item-name');
     $elem.change(function () {
@@ -216,6 +278,11 @@ function itemInputOnChange() {
  Share list with email helper functions
  **************************************
  */
+
+/**
+ * Initialize the share list to email form. Generates a new row
+ * for the shared table.
+ */
 function initShareEmailForm() {
     $('#share-list-form').submit(function (e) {
         e.preventDefault();
@@ -231,6 +298,12 @@ function initShareEmailForm() {
     })
 }
 
+/**
+ * Helper function for generating a html row code for
+ * shared emails table
+ * @param mail
+ * @returns {string}
+ */
 function createShareEmailRow(mail) {
     return `<tr id="last">
     <td class="email" data-email="${mail}">${mail}</td>
@@ -239,11 +312,19 @@ function createShareEmailRow(mail) {
     </td></tr>`;
 }
 
+/**
+ * Helper function that clears the share list form
+ * @param $mail
+ */
 function cleanShareEmailForm($mail) {
     $mail.val('');
     $mail.focus();
 }
 
+/**
+ * Initialize the delete button for removing emails from
+ * the share list table
+ */
 function initShareEmailDeleteButton() {
     $('.delete-mail').off('click').on('click', function (e) {
         const tableId = 'email';
@@ -254,6 +335,11 @@ function initShareEmailDeleteButton() {
     })
 }
 
+/**
+ * Helper function that creates a list of email objects from the
+ * share list table
+ * @returns {[]}
+ */
 function collectShareEmailValues() {
     const $emailRows = $('.email');
     const emails = [];
@@ -268,6 +354,11 @@ function collectShareEmailValues() {
  * Submit ShoppingList form helper functions
  *******************************************
  */
+
+/**
+ * Function for submitting a shopping list to the right api endpoints
+ * @param method - string value of the http method used for submitting.
+ */
 function initSubmitShoppingList(method) {
     $('#submit-shopping-list').off('click').on('click', function (e) {
         const items = collectShoppingListItemValues();
@@ -277,26 +368,15 @@ function initSubmitShoppingList(method) {
             items: items,
             emails: emails
         };
-        $.ajax({
-            headers: getHeaders(),
-            url: $(this).data('url'),
-            type: method,
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            data: JSON.stringify(data),
-            success: function (response, textStatus, jqHXR) {
-                if (response.status === 'success') {
-                    window.location.replace(response.url);
-                } else {
-                    if ('message' in response) {
-                        createToastMessage(response.message, response.status,
-                            2000, 'Submission Error');
-                    } else if ('errors' in response) {
-                        displayErrors(response.errors)
-                    }
-                }
-            },
-            error: function (jqHXR, testStatus, errorThrown) {
+        const url = $(this).data('url');
+        jsonRequest(url, data, method).then(function (response) {
+            window.location.replace(response.url);
+        }).catch(function (response) {
+            if ('message' in response) {
+                createToastMessage(response.message, response.status,
+                    2000, 'Submission Error');
+            } else if ('errors' in response) {
+                displayErrors(response.errors)
             }
         });
     })
@@ -306,6 +386,14 @@ function initSubmitShoppingList(method) {
  **********************************************
  * Editing shopping lists form helper functions
  **********************************************
+ */
+
+/**
+ * Function for editing item rows in a shopping list. Replace item
+ * row with a prepopulated from for editing row. Initializes all
+ * buttons in the item rows while viewing and editing.
+ * @param rowMap - helper map for editing rows
+ * @returns {jQuery}
  */
 function initEditListEditItemRow(rowMap) {
     return $('.edit-item-row').off('click').on('click', function (e) {
@@ -332,6 +420,12 @@ function initEditListEditItemRow(rowMap) {
     });
 }
 
+/**
+ * Init cancel button for item editing. Replaces edit form with a td
+ * tags.
+ * @param rowMap - map containing the original row that was edited
+ * and container where the row was
+ */
 function initCancelEditBtn(rowMap) {
     let activeRow = rowMap.get('activeRow');
     $('.cancel-btn').off('click').on('click', function (e) {
@@ -346,6 +440,12 @@ function initCancelEditBtn(rowMap) {
     });
 }
 
+/**
+ * Generate html code for item row edit form
+ * @param $container - jquery selector of the container where to
+ * insert the genrerated form
+ * @returns {jQuery}
+ */
 function createEditItemRowForm($container) {
     let $form = $('#template-row').clone();
     const $itemName = $form.find('.item-name');
@@ -401,6 +501,9 @@ function createEditItemRowForm($container) {
     return $form.html();
 }
 
+/**
+ * Initialize the button for toggling an item's is_done state.
+ */
 function initToggleItemDone() {
     $('.toggle-done').off('click').on('click', function (e) {
         let value = $(this).attr('data-value');
@@ -410,6 +513,11 @@ function initToggleItemDone() {
     })
 }
 
+/**
+ * Get the right image for the item's is_done status.
+ * @param value - str value of the item's is_done attribute
+ * @returns {string}
+ */
 function getItemDoneElement(value) {
     if (value === 'True') {
         return '<i class="fa-15x text-success fas fa-check-circle"></i>';
@@ -417,6 +525,12 @@ function getItemDoneElement(value) {
     return '<i class="fa-15x text-danger far fa-times-circle"></i>';
 }
 
+/**
+ * Initialize the item edit form submit functionality. Remove the from,
+ * replace it with td tags containing the new data.
+ * @param rowMap - map containing the active row and the
+ * selector for the container
+ */
 function initSubmitEditRowForm(rowMap) {
     $('#edit-row-form').submit(function (e) {
         e.preventDefault();
