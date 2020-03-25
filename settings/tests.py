@@ -4,15 +4,19 @@ from PIL import Image
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from account.models import Profile
+from account.tokens import account_activation_token
 
 BASIC_INFORMATION_URL = reverse('profile')
 PASSWORD_URL = reverse('change-password')
 AVATAR_CHANGE_URL = reverse('change-avatar')
 SHARE_LEVEL_URL = reverse('share-level')
+DELETE_ACCOUNT_URL = reverse('delete-account-s1')
 
 
 def sample_user(email='user@shoppero.com', password='pass'):
@@ -58,6 +62,19 @@ class TestUserSettingsPublic(TestCase):
         is not public"""
         payload = {'share_level': Profile.COMPLETE_ACCESS}
         res = self.client.patch(SHARE_LEVEL_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_account_send_mail_fail(self):
+        """Test that the api for sending delete confirmation mail
+        is not public"""
+        res = self.client.get(DELETE_ACCOUNT_URL)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_account_final_fail(self):
+        """Test that the api for deleting the account is not public"""
+        delete_account_confirm_url = reverse('delete-account-s2',
+                                             args=['any_id', 'any_token'])
+        res = self.client.get(delete_account_confirm_url)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -138,3 +155,20 @@ class TestUserSettingsPrivate(TestCase):
         self.user.profile.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(self.user.profile.share_level, Profile.READ_ACCESS)
+
+    def test_delete_account_send_email_success(self):
+        """Test that the user can get the delete account
+        confirmation email"""
+        res = self.client.get(DELETE_ACCOUNT_URL)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_delete_account_confirm_success(self):
+        """Test that the user can delete their account"""
+        uidb64 = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = account_activation_token.make_token(self.user)
+        delete_account_confirm_url = reverse('delete-account-s2',
+                                             args=[uidb64, token])
+        res = self.client.get(delete_account_confirm_url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        self.user.refresh_from_db()
+        self.assertIsNotNone(self.user.deleted)

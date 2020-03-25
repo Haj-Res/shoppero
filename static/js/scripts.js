@@ -111,12 +111,22 @@ function jsonRequest(url, data, method) {
         dataType: 'json',
         data: data ? JSON.stringify(data) : data,
         success: function (response) {
-            const res = {'success': true, 'response': response};
-            return res
+            return {'success': true, 'response': response}
         },
         error: function (response) {
-            const res = {'success': false, 'response': response};
-            return res
+            return {'success': false, 'response': response}
         }
     })
+}
+
+function createSubmissionErrorToast(callback) {
+    const title = 'Submission Error';
+    const message = `An error occurred. Please try again later. If this keeps
+    persisting, please contact support.`;
+    const level = 'error';
+    const duration = 3000;
+    createToastMessage(message, level, duration, title);
+    if (callback) {
+        callback()
+    }
 }

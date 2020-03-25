@@ -1,7 +1,8 @@
 from django.urls import path
 
 from settings.views import SettingsView, ProfileViewSet, PasswordViewSet, \
-    AvatarViewSet, TwoFactorViewSet, DefaultShareLevelViewSet
+    AvatarViewSet, TwoFactorViewSet, DefaultShareLevelViewSet, \
+    DeleteAccountViewSet
 
 urlpatterns = [
     path('', SettingsView.as_view(), name='settings'),
@@ -22,5 +23,11 @@ urlpatterns = [
          name='two-factor-toggle'),
     path('share-level/',
          DefaultShareLevelViewSet.as_view({'patch': 'patch'}),
-         name='share-level')
+         name='share-level'),
+    path('delete-account/',
+         DeleteAccountViewSet.as_view({'get': 'delete_step_one'}),
+         name='delete-account-s1'),
+    path('delete-account/<slug:uidb64>/<slug:token>/',
+         DeleteAccountViewSet.as_view({'get': 'delete_step_two'}),
+         name='delete-account-s2')
 ]
