@@ -1,3 +1,7 @@
+/**
+ * Helper function for displaying errors on submission failure
+ * @param errors - object in the from of {field_name: [err1, err2]}
+ */
 function displayErrors(errors) {
     $('.error').html('');
     for (let key in errors) {
@@ -12,6 +16,11 @@ function displayErrors(errors) {
     }
 }
 
+/**
+ * Helper function for getting the set cookie.
+ * @param name
+ * @returns {null}
+ */
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -27,6 +36,9 @@ function getCookie(name) {
     return cookieValue;
 }
 
+/**
+ * Initialize modal with special show and hide callback methods
+ */
 function initModal(modalId, showCallback, hideCallback) {
     $(modalId).on('shown.bs.modal', function () {
         showCallback();
@@ -37,6 +49,12 @@ function initModal(modalId, showCallback, hideCallback) {
     });
 }
 
+/**
+ * Helper function for adding a row to a table. Takes care of
+ * the #last id of rows while adding
+ * @param tableId - id of the table
+ * @param row - html code of the row to be inserted
+ */
 function addRowToTable(tableId, row) {
     const $emptyRow = $(`#${tableId} #table-empty`);
     if ($emptyRow.length) {
@@ -49,6 +67,15 @@ function addRowToTable(tableId, row) {
     }
 }
 
+/**
+ * Delete row from table. Take care of the #last id of the row.
+ * Display special row if table is empty after delete
+ * @param tableId - id of the table
+ * @param $row - jquery selector of the row to be deleted
+ * @param colspan - how wide the table is. Used for creating
+ * the empty table row
+ * @param emptyTableMessage - message displayed in the empty table row
+ */
 function deleteRowFromTable(tableId, $row, colspan, emptyTableMessage) {
     if ($row.attr('id') === 'last') {
         if ($row.prev().length < 1) {
@@ -61,6 +88,12 @@ function deleteRowFromTable(tableId, $row, colspan, emptyTableMessage) {
     $row.remove();
 }
 
+/**
+ * Helper function fro creating empty table rows
+ * @param colspan - width of the table
+ * @param emptyTableMessage - message in the row
+ * @returns {string}
+ */
 function createEmptyRow(colspan, emptyTableMessage) {
     if (emptyTableMessage === undefined) {
         emptyTableMessage = 'No data'
@@ -71,10 +104,22 @@ function createEmptyRow(colspan, emptyTableMessage) {
     return emptyRow;
 }
 
+/**
+ * Get headers with the CSRF token
+ * @returns {{"X-CSRFToken": *}}
+ */
 function getHeaders() {
     return {'X-CSRFToken': getCookie('csrftoken')}
 }
 
+
+/**
+ * Create and show a toast message to the user
+ * @param message - Message shown
+ * @param level - message level (info, success, warn, error)
+ * @param duration - how long the message is shown in MS, def: 2000
+ * @param title - toast title
+ */
 function createToastMessage(message, level, duration, title) {
     level = level ? level : 'info';
     duration = duration ? duration : 2000;
@@ -93,12 +138,25 @@ function createToastMessage(message, level, duration, title) {
     $(`#${timestamp}`).toast('show');
 }
 
+/**
+ * Initialize Bootstrap tooltip messages
+ */
 function initTooltips() {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
 }
 
+/**
+ * Wrapper function for the jQuery ajax function request with
+ * predefined headers for CSRF tokenand content and data type json.
+ * Use jsonReuquest(foo, bar, baz).then(function(response){}).catch(function(response){})
+ * to deal with the server's response
+ * @param url - endpoint for the reuqest
+ * @param data - data sent to endpoint
+ * @param method - http method to be used
+ * @returns {jQuery|{getAllResponseHeaders: (function(): *), abort: (function(*=): jqXHR), setRequestHeader: (function(*=, *): jqXHR), readyState: number, getResponseHeader: (function(*): *), overrideMimeType: (function(*): jqXHR), statusCode: (function(*=): jqXHR)}|string|(function(*=, *=): *)|(function(*=, *=): *)|HTMLElement|*}
+ */
 function jsonRequest(url, data, method) {
     if (method === undefined) {
         method = 'GET'
@@ -119,14 +177,16 @@ function jsonRequest(url, data, method) {
     })
 }
 
-function createSubmissionErrorToast(callback) {
+/**
+ * Wrapper function of the createToastMessage with default submission
+ * error toast message
+ * @param response
+ */
+function createSubmissionErrorToast(response) {
     const title = 'Submission Error';
     const message = `An error occurred. Please try again later. If this keeps
     persisting, please contact support.`;
     const level = 'error';
     const duration = 3000;
     createToastMessage(message, level, duration, title);
-    if (callback) {
-        callback()
-    }
 }

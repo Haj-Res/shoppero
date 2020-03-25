@@ -1,3 +1,7 @@
+/**
+ * Clean up data in item form and focus on name input
+ * to allow easy fast multiple items insertion.
+ */
 function cleanItemForm() {
     const $name = $('#name');
     $name.val('');
@@ -7,6 +11,12 @@ function cleanItemForm() {
     $name.focus();
 }
 
+/**
+ * Prepare a html code of a table row for a given item object and row number.
+ * @param item - item object having name, code, price and tags attributes
+ * @param rowNum - number of the last row in the table. 0 if empty
+ * @returns {string} - html code of <td> tag ready for inserting in table
+ */
 function prepareItemForTable(item, rowNum) {
     rowNum = parseInt(rowNum) + 1;
     let tableRow = `<tr id="last" class="table-row item-${item.id}">`;
@@ -15,19 +25,33 @@ function prepareItemForTable(item, rowNum) {
     return tableRow;
 }
 
+/**
+ * Helper function of creating html code just of content inside the table row for
+ * a given item with the row number of the last entry in the table.
+ * @param item - item object having name, code, price and tags attributes
+ * @param rowNum - number of the last row in the table. 0 if empty
+ * @returns {string} html code of <td> tags for the given item
+ */
 function createItemTableData(item, rowNum) {
+    if (item['price'] == null) {
+        item['price'] = '';
+    }
     let tableRow = `<th class="num" scope="row">${rowNum}</th>`;
     tableRow += `<td>${item['name']}</td>`;
     tableRow += `<td>${item['code']}</td>`;
     tableRow += `<td class="justify-text-right">${item['price']}</td>`;
     tableRow += `<td>${item['tags']}</td>`;
     tableRow += `<td>
-<span data-url="${item['url']}" class="i-btn edit-item-btn"><i class="fas fa-pen"></i>
+<span data-url="${item['url']}" class="i-btn edit-item-btn"><i class="fas fa-pen"></i></span>
 <span data-url="${item['url']}" class="ml-3 i-btn delete-item-btn"><i class="fas fa-trash-alt"></i></span>
-</span></td>`;
+</td>`;
     return tableRow;
 }
 
+/**
+ * Insert a new item into the existing table
+ * @param item - item object having name, code, price and tags attributes
+ */
 function addItemRow(item) {
     let $emptyTable = $('#table-empty');
     if ($emptyTable.length) {
@@ -44,6 +68,10 @@ function addItemRow(item) {
     }
 }
 
+/**
+ * Update an existing row in the table with new item data
+ * @param item - item object having name, code, price and tags attributes
+ */
 function updateItemRow(item) {
     const $itemRow = $(`.item-${item.id}`);
     const rowNum = $(`.item-${item.id} .num`).html();
@@ -51,11 +79,16 @@ function updateItemRow(item) {
     $itemRow.html(itemData);
 }
 
+/**
+ * Initialize the edit item button. Create a get request to fetch the
+ * data of the item from the api, adjust the add/edit item form to edit mode,
+ * populate the input fields with the right data and open modal.
+ */
 function initItemEditBtn() {
     $('.edit-item-btn').off('click').on('click', function (e) {
             let url = $(this).data('url');
             itemModalToEdit(url);
-            $.getJSON(url, function (item, textStatus, jqXHR) {
+            jsonRequest(url).then(function (item) {
                 $('#name').val(item.name);
                 $('#code').val(item.code);
                 $('#price').val(item.price);
@@ -66,40 +99,28 @@ function initItemEditBtn() {
     )
 }
 
+/**
+ * Initialize the item delete button. Make a patch request to the api for a
+ * item soft delete operation. Remove item row from the item table.
+ */
 function initItemDeleteBtn() {
     $('.delete-item-btn').off('click').on('click', function (e) {
         const url = $(this).data('url');
         const $parent = $(this).parent().parent();
+        const method = 'PATCH';
         // TODO add confirmation modal
-        $.ajax({
-            headers: getHeaders(),
-            url: url,
-            type: 'PATCH',
-            success: function (response, textStatus, jqHxr) {
-                let is_empty = false;
-
-                if ($parent.attr('id') === 'last') {
-                    if ($parent.prev().length < 1) {
-                        is_empty = true;
-                    } else {
-                        $parent.prev().attr('id', 'last')
-                    }
-                }
-                $parent.remove();
-                if (is_empty) {
-                    const empty_row = '<tr id="table-empty">\n' +
-                        '                    <td class="table-data" colspan="6">No items found</td>\n' +
-                        '                </tr>';
-                    $('tbody').html(empty_row);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                // TODO handle error
-            }
-        })
-    });
+        jsonRequest(url, null, method).then(function (response) {
+            const tableId = '#items-table';
+            const colspan = 6;
+            const emptyTableMessage = 'No items found';
+            deleteRowFromTable(tableId, $parent, colspan, emptyTableMessage);
+        }).catch(createSubmissionErrorToast); // TODO: handle exception besides toast
+    })
 }
 
+/**
+ * Change the item form action and method to adding new items
+ */
 function itemModalToAddNew() {
     let $form = $('#item-form');
     let url = $form.data('new');
@@ -108,6 +129,10 @@ function itemModalToAddNew() {
     $('.modal-title').html('New Item');
 }
 
+/**
+ * Change the item from action and method to edit existing item
+ * @param url - url to the api for updating items
+ */
 function itemModalToEdit(url) {
     let $form = $('#item-form');
     $form.attr('action', url);
@@ -115,60 +140,41 @@ function itemModalToEdit(url) {
     $('.modal-title').html('Update item');
 }
 
-function validateItemForm() {
-    let errors = {};
-
-    const name = $('#name').val()?.trim();
-    let name_err = [];
-    if (name === undefined || name === null || name === '') {
-        name_err.push('required')
-    } else if (name.length < 2) {
-        name_err.push('must be at least 2 characters');
-    }
-
-    if (name_err.length > 0) {
-        errors['name'] = name_err;
-        return errors;
-    }
-    return null;
-}
-
+/**
+ * Initialize the item from submit functionality. Creates a POST or PUT
+ * request to the form's action url depending on whether it's adding or
+ * editing an item.
+ */
 function postOrPutItemData() {
     $('#item-form').submit(function (e) {
         e.preventDefault();
         const form = document.querySelector('#item-form');
         if (form.checkValidity()) {
             const $form = $('#item-form');
+            const $price = $('#price');
             const data = {
                 name: $('#name').val(),
                 code: $('#code').val(),
-                price: $('#price').val() ? $('#price').val() : null,
+                price: $price.val() ? $price.val() : null,
                 tags_string: $('#tags').val()
             };
-            $.ajax({
-                    headers: getHeaders(),
-                    url: $form.attr('action'),
-                    type: $form.attr('method').toUpperCase(),
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    data: JSON.stringify(data),
-                    success: function (response, textStatus, jqHxr) {
-                        if ($form.attr('method').toUpperCase() === 'POST') {
-                            addItemRow(response);
-                        } else if ($form.attr('method').toUpperCase() === 'PUT') {
-                            updateItemRow(response);
-                            $('#itemModal').modal('hide');
-                        }
-                        initItemEditBtn();
-                        initItemDeleteBtn();
-                        cleanItemForm();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        const errors = jqXHR.responseJSON;
-                        displayErrors(errors);
-                    }
+            const url = $form.attr('action');
+            const method = $form.attr('method').toUpperCase();
+            jsonRequest(url, data, method).then(function (response) {
+                if (method === 'POST') {
+                    addItemRow(response);
+                } else if (method === 'PUT') {
+                    updateItemRow(response);
+                    $('#itemModal').modal('hide');
                 }
-            );
+                initItemEditBtn();
+                initItemDeleteBtn();
+                cleanItemForm();
+            }).catch(function (response) {
+                const errors = response.responseJSON;
+                displayErrors(errors);
+            });
+
         }
     });
 }
