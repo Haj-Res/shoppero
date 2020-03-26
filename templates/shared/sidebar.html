@@ -1,13 +1,13 @@
 <div class="sidebar-wrapper" id="sidebarSupportedContent">
     <div class="logo">
-        <a href="{% url 'index' %}" class="simple-text">
+        <a href="{% url 'dashboard' %}" class="simple-text">
             {{ request.user.email }}
         </a>
     </div>
     <ul class="nav">
-        {% url 'index' as index %}
-        <li {% if request.path == index %}class="active"{% endif %}>
-            <a href="{{ index }}">
+        {% url 'dashboard' as dashboard %}
+        <li {% if request.path == dashboard %}class="active"{% endif %}>
+            <a href="{{ dashboard }}">
                 <i class="fas fa-home"></i>
                 <p>Dashboard</p>
             </a>
@@ -27,8 +27,8 @@
                 <p>My Items</p>
             </a>
         </li>
-
-        <li class="second-last">
+        {% url 'settings' as settings %}
+        <li class="second-last{% if request.path == settings %} active{% endif %}">
             <a href="{% url 'settings' %}">
                 <i class="fas fa-cog"></i>
                 <p>Settings</p>

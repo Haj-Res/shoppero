@@ -1,7 +1,8 @@
 :root {
     --primary: #d59679;
     --secondary: #353137;
-    --light: #dcdcdc;
+    --light: #f5f6f5;
+    --dark: #dcdcdc;
     --success: #75a85c;
     --info: #9fa1a8;
     --warning: #f29724;
@@ -325,6 +326,10 @@ button.bg-secondary:focus {
     color: var(--white);
 }
 
+.bg-light {
+    background-color: var(--light) !important;
+}
+
 .border-primary {
     border-color: var(--primary) !important;
 
@@ -414,7 +419,7 @@ button.bg-secondary:focus {
     border-bottom: 2px solid var(--primary);
     overflow: hidden !important;
     padding: 1rem 2rem !important;
-    background-color: var(--light) !important;
+    background-color: var(--dark) !important;
     -webkit-transition: height 0.4s linear, background-color 0.4s linear;
     -moz-transition: height 0.4s linear, background-color 0.4s linear;
     -ms-transition: height 0.4s linear, background-color 0.4s linear;
@@ -423,7 +428,7 @@ button.bg-secondary:focus {
 }
 
 .change-password-container.show {
-    height: 380px !important;
+    height: 350px !important;
 }
 
 .two-factor-confirmation.show {
@@ -441,4 +446,48 @@ button.bg-secondary:focus {
 select.form-control {
     border-color: var(--primary) !important;
     border: 1px solid;
+}
+
+.media-container {
+
+    background-color: var(--light);
+    border-radius: 26px;
+}
+
+
+@media (min-width: 576px) {
+    .media-container {
+        width: 100%;
+        margin: 2rem 4rem;
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .media-container {
+        width: 80%;
+        margin: 2.5rem 5rem;
+        padding: 1.5rem 0.75rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .media-container {
+        width: 65%;
+        margin: 3rem 6rem;
+        padding: 2rem 1rem;
+    }
+}
+
+.media-container.left {
+    border-left: 6px solid var(--primary);
+    padding-left: 2rem;
+    margin-right: auto !important;
+}
+
+.media-container.right {
+    border-right: 6px solid var(--primary);
+    padding-right: 2rem;
+    margin-left: auto !important;
+    border-radius: 26px;
 }

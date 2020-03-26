@@ -36,7 +36,11 @@
 </div>
 <div class="wrapper">
     <div id="sidebar" class="sidebar" data-background-color="black" data-active-color="primary">
-        {% include "shared/sidebar.html" %}
+        {% if request.user.is_authenticated %}
+            {% include "shared/sidebar.html" %}
+        {% else %}
+            {% include "shared/sidebar_not_logged_in.html" %}
+        {% endif %}
     </div>
     <div class="main-panel">
         {% block content %}{% endblock %}
