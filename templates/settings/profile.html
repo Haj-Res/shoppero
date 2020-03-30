@@ -1,85 +1,92 @@
 {% load static %}
-<div class="bg-light pb-5 pt-3 px-4 border-bottom border-secondary">
-    <h2 class="mt-0">Profile Information</h2>
-    <div class="row px-3">
-        <div class="col-md-2 d-none d-sm-inline">
-            <img id="avatar" class="img-fluid rounded-pill" src="{{ request.user.profile.avatar.url }}" alt="Avatar">
+<div class="col-12 px-5 mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="my-2">Profile Information</h2>
         </div>
-        <div class="d-inline col-md-10 col-sm-12 pt-2 pl-5">
-            <div class="row">
-                <div class="col-12">
-                    <p class="mb-1">
-                        <small class="hint border-bottom pl-1 pr-3">Email:</small>
-                    </p>
-                    <p class="ml-3 mb-2">{{ request.user.email }}</p>
+        <div class="card-body">
+            <div class="row px-3">
+                <div class="col-md-2 d-none d-sm-inline">
+                    <img id="avatar" class="img-fluid rounded-pill" src="{{ request.user.profile.avatar.url }}" alt="Avatar">
                 </div>
-                <div id="information-container" class="col-12 m-0 p-0">
-                    <div class="col-12">
-                        <p class="mb-1">
-                            <small class="hint border-bottom pl-1 pr-3">First
-                                name:</small></p>
-                        <p id="p-first-name" class="ml-3 mb-2">{{ request.user.profile.first_name }}</p>
-                    </div>
-                    <div class="col-12">
-                        <p class="mb-1">
-                            <small class="hint border-bottom pl-1 pr-3">Last
-                                name:</small></p>
-                        <p id="p-last-name" class="ml-3 mb-2">{{ request.user.profile.last_name }}</p>
-                    </div>
-                </div>
-                <div id="information-form-container" class="col-12 m-0 p-0 d-none">
-                    <form id="information-form" action="{% url 'profile' %}">
-                        <div class="custom-form-group">
-                            <label for="first_name"><small>First name:</small></label>
-                            <input type="text" id="first_name" name="first_name" placeholder="First Name"
-                                   value="{{ request.user.profile.first_name }}">
+                <div class="d-inline col-md-10 col-sm-12 pt-2 pl-5">
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="mb-1">
+                                <small class="hint border-bottom pl-1 pr-3">Email:</small>
+                            </p>
+                            <p class="ml-3 mb-2">{{ request.user.email }}</p>
                         </div>
-                        <div class="custom-form-group">
-                            <label for="last_name"><small>Last
-                                name:</small></label>
-                            <input type="text" id="last_name" name="last_name" placeholder="Last Name"
-                                   value="{{ request.user.profile.last_name }}">
+                        <div id="information-container" class="col-12 m-0 p-0">
+                            <div class="col-12">
+                                <p class="mb-1">
+                                    <small class="hint border-bottom pl-1 pr-3">First
+                                        name:</small></p>
+                                <p id="p-first-name" class="ml-3 mb-2">{{ request.user.profile.first_name }}</p>
+                            </div>
+                            <div class="col-12">
+                                <p class="mb-1">
+                                    <small class="hint border-bottom pl-1 pr-3">Last
+                                        name:</small></p>
+                                <p id="p-last-name" class="ml-3 mb-2">{{ request.user.profile.last_name }}</p>
+                            </div>
                         </div>
-                    </form>
+                        <div id="information-form-container" class="col-12 m-0 p-0 d-none">
+                            <form id="information-form" action="{% url 'profile' %}">
+                                <div class="custom-form-group">
+                                    <label for="first_name"><small>First
+                                        name:</small></label>
+                                    <input type="text" id="first_name" name="first_name" placeholder="First Name"
+                                           value="{{ request.user.profile.first_name }}">
+                                </div>
+                                <div class="custom-form-group">
+                                    <label for="last_name"><small>Last
+                                        name:</small></label>
+                                    <input type="text" id="last_name" name="last_name" placeholder="Last Name"
+                                           value="{{ request.user.profile.last_name }}">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <div class="row px-3 mt-2">
+                <div class="col-md-2 d-none d-sm-inline">
+                    <button type="button" class=" btn btn-block btn-primary" onclick="chooseFile()">
+                        New avatar
+                    </button>
+                    <button type="button" class=" mt-1 btn btn-block btn-secondary" onclick="deleteAvatar()">
+                        Delete avatar
+                    </button>
+                </div>
+                <div id="information-button" class="d-inline col-md-10 col-sm-12 ">
+                    <button class="btn btn-block btn-primary col-md-2 col-sm-4 col-xs-12" type="button" onclick="showInformationForm()">
+                        Update information
+                    </button>
+                </div>
+                <div id="information-form-button" class="d-none col-md-10 col-sm-12">
+                    <button class="btn btn-secondary mr-3" type="button" onclick="hideInformationForm()">
+                        Cancel
+                    </button>
+                    <button type="submit" form="information-form" class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+            </div>
+            <div style="height:0px;overflow:hidden">
+                <form action="#" enctype="multipart/form-data">
+                    <input type="file" id="avatarInput" name="avatarInput"
+                           accept="image/png, image/jpeg"
+                           data-url="{% url 'change-avatar' %}">
+                </form>
+            </div>
         </div>
+        <script src="{% static "js/settings.js" %}"></script>
+        <script>
+            $(document).ready(function () {
+                initSubmitNewAvatarImage();
+                initSubmitProfileInformationForm();
+            });
+        </script>
     </div>
-    <div class="row px-3 mt-2">
-        <div class="col-md-2 d-none d-sm-inline">
-            <button type="button" class=" btn btn-block btn-primary" onclick="chooseFile()">
-                New avatar
-            </button>
-            <button type="button" class=" mt-1 btn btn-block btn-secondary" onclick="deleteAvatar()">
-                Delete avatar
-            </button>
-        </div>
-        <div id="information-button" class="d-inline col-md-10 col-sm-12 ">
-            <button class="btn btn-block btn-primary col-md-2 col-sm-4 col-xs-12" type="button" onclick="showInformationForm()">
-                Update information
-            </button>
-        </div>
-        <div id="information-form-button" class="d-none col-md-10 col-sm-12">
-            <button class="btn btn-secondary mr-3" type="button" onclick="hideInformationForm()">
-                Cancel
-            </button>
-            <button type="submit" form="information-form" class="btn btn-primary">
-                Save
-            </button>
-        </div>
-    </div>
-    <div style="height:0px;overflow:hidden">
-        <form action="#" enctype="multipart/form-data">
-            <input type="file" id="avatarInput" name="avatarInput"
-                   accept="image/png, image/jpeg"
-                   data-url="{% url 'change-avatar' %}">
-        </form>
-    </div>
-    <script src="{% static "js/settings.js" %}"></script>
-    <script>
-        $(document).ready(function () {
-            initSubmitNewAvatarImage();
-            initSubmitProfileInformationForm();
-        });
-    </script>
 </div>

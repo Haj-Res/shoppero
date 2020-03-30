@@ -1,0 +1,14 @@
+{% block wrapper %}
+    <div class="wrapper">
+        <div id="sidebar" class="sidebar" data-background-color="black" data-active-color="primary">
+            {% include "shared/sidebar.html" %}
+        </div>
+        <div class="main-panel">
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+            {% block footer %}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,39 +1,65 @@
 {% extends "base_wide.html" %}
-{% load i18n %}
-
+{% load static %}
 {% block content %}
-    {% url 'index' as url %}
-    {% include 'shared/top_header.html' with url=url title='Dashboard' %}
-    <div class="content">
-        <section class="d-flex justify-content-between">
-            <div class="flex-fill m-3">
-                <div class="card">
-                    <div class="card-header"><h5>Your Shopping lists</h5></div>
-                    <div class="card-body">
-                        Body of the card
-                    </div>
-                </div>
-
+    <div class="media-container left">
+        <div class="media">
+            <img class="d-none d-lg-flex mr-3" alt="Manage your items"
+                 src="{% static "images/items.png" %}" data-holder-rendered="true"
+                 style="max-width: 500px; max-height: 300px;">
+            <div class=" media-body d-md-block">
+                <h5 class="mt-0">Manage your items</h5>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Quisque ut mi vitae ante pellentesque ornare. Maecenas sit amet
+                libero quis nunc consectetur fringilla ut a magna. Nam a justo
+                non augue iaculis venenatis id sit amet nibh. Aenean in
+                fermentum nisl. Integer molestie pulvinar vestibulum. Nam
+                cursus nunc quis ligula egestas fermentum. Donec blandit eros
+                id orci malesuada malesuada.
             </div>
-            <div class="flex-fill m-3">
-                <div class="card">
-                    <div class="card-header"><h5>Shared Shopping lists</h5>
-                    </div>
-                    <div class="card-body">
-                        Body of the card
-                    </div>
-                </div>
+        </div>
+    </div>
 
+    <div class="media-container right">
+        <div class="media">
+            <div class="media-body">
+                <h5 class="mt-0 mb-1">Create and share your shopping lists</h5>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
+                in blandit purus. Quisque at orci venenatis, porttitor nunc
+                eget, faucibus ligula. Cras dapibus ex in lacus tincidunt, in
+                gravida lectus scelerisque. Mauris tristique, dui at iaculis
+                interdum, nibh ipsum pulvinar neque, in rhoncus elit massa quis
+                risus. Morbi in porttitor enim. Aliquam pellentesque placerat
+                nisl, et sagittis leo. Suspendisse feugiat neque non ex
+                condimentum ornare. Nulla elementum quam non nibh egestas
+                rhoncus. Nam imperdiet ac justo a rhoncus. Sed semper nisi sit
+                amet tempus dictum. Sed varius facilisis odio, quis placerat
+                ligula molestie a. Sed ut dui vitae libero malesuada tristique.
+                Aenean mattis nisi dui, vitae maximus orci tempor non.
             </div>
-            <div class="flex-fill m-3">
-                <div class="card">
-                    <div class="card-header"><h5>Your Connections</h5></div>
-                    <div class="card-body">
-                        Body of the card
-                    </div>
-                </div>
+            <img class="d-none d-lg-flex ml-3" src="{% static "images/create_shopping_list.png" %}"
+                 alt="Create shopping list image"
+                 style="max-width: 500px; max-height: 300px;">
+        </div>
+    </div>
 
+    <div class="media-container left">
+        <div class="media">
+            <img class="d-none d-lg-flex mr-3" alt="Manage your shopping lists"
+                 src="{% static "images/shopping_lists.png" %}" data-holder-rendered="true"
+                 style="max-width: 500px; max-height: 300px;">
+            <div class=" media-body">
+                <h5 class="mt-0">Manage shopping lists</h5>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam
+                cursus, nisl sed pellentesque auctor, lectus ex dignissim enim,
+                vitae cursus dolor mauris quis elit. Nunc quis malesuada lorem.
+                Sed quis quam eget erat ultricies
+                <au></au>
+                ctor eget quis odio. Aenean
+                iaculis enim id urna aliquet tincidunt. Etiam dignissim tellus
+                dui, a bibendum quam posuere maximus. Nam ut urna auctor,
+                luctus lectus sit amet, aliquam urna. Donec mi lectus, auctor
+                ut elementum quis, aliquet id magna.
             </div>
-        </section>
+        </div>
     </div>
 {% endblock %}
