@@ -180,9 +180,8 @@ function jsonRequest(url, data, method) {
 /**
  * Wrapper function of the createToastMessage with default submission
  * error toast message
- * @param response
  */
-function createSubmissionErrorToast(response) {
+function createSubmissionErrorToast() {
     const title = 'Submission Error';
     const message = `An error occurred. Please try again later. If this keeps
     persisting, please contact support.`;

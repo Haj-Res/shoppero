@@ -9,8 +9,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
 from shopping_list.forms import ItemForm, ShoppingListForm, \
@@ -134,18 +136,18 @@ class ShoppingListViewSet(ViewSet):
         if serializer.is_valid():
             messages.success(request, _('List saved'))
             instance = serializer.save()
-            return JsonResponse({
+            return Response({
                 'status': 'success',
                 'url': reverse('shopping_list_single', args=[instance.pk]),
                 'content': serializer.data
             })
         else:
             logger.info(serializer.errors)
-            messages.error(request, _('List not saved'))
-            return JsonResponse({
-                'status': 'error',
-                'content': serializer.errors
-            })
+            context = {'errors': serializer.errors}
+            if 'items' in serializer.errors:
+                message = serializer.errors['items'][0]
+                context['message'] = message
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
     def update(self, request, pk):
         logger.info(f'User {request.user} updating list {pk}')
@@ -156,16 +158,17 @@ class ShoppingListViewSet(ViewSet):
         if serializer.is_valid():
             serializer.save()
             messages.success(request, _('Shopping list update'))
-            return JsonResponse({
+            return Response({
                 'status': 'success',
                 'url': reverse('shopping_list')
             })
         else:
             logger.info(serializer.errors)
-            return JsonResponse({
-                'status': 'error',
-                'content': serializer.errors
-            })
+            context = {'errors': serializer.errors}
+            if 'items' in serializer.errors:
+                message = serializer.errors['items'][0]
+                context['message'] = message
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
     def archive(self, request, pk):
         logger.info(u'User %d archiving list %d', request.user.id, pk)
@@ -178,7 +181,7 @@ class ShoppingListViewSet(ViewSet):
         for i in range(0, len(data)):
             data[i]['url'] = reverse('api_shopping_list_single',
                                      args=[data[i]['id']])
-        return JsonResponse({'status': 'success', 'content': data})
+        return Response({'status': 'success', 'content': data})
 
     def delete(self, request, pk, ):
         logger.info(u'User %d deleting list %d', request.user.id, pk)
@@ -191,7 +194,7 @@ class ShoppingListViewSet(ViewSet):
         for i in range(0, len(data)):
             data[i]['url'] = reverse('api_shopping_list_single',
                                      args=[data[i]['id']])
-        return JsonResponse({'status': 'success', 'content': data})
+        return Response({'status': 'success', 'content': data})
 
 
 class ItemViewSet(ModelViewSet):

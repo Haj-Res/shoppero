@@ -47,6 +47,7 @@ function deleteOrArchiveList(url, method, toastMessage) {
         $('#shopping-list-table tbody').html(table);
         initListArchiveBtn();
         initListDeleteBtn();
+        initClickableShoppingListCell();
         $('.modal').modal('hide');
         createToastMessage(toastMessage, 'info');
     });
@@ -208,6 +209,10 @@ function clearShoppingListItemForm() {
  * @returns {[]}
  */
 function collectShoppingListItemValues() {
+    const $editRow = $('.cancel-btn').not('#tmpl-action .cancel-btn');
+    if ($editRow.length) {
+        $editRow.trigger('click');
+    }
     const $dataRows = $('.data');
     const items = [];
     $.each($dataRows, function (_, row) {
@@ -219,6 +224,10 @@ function collectShoppingListItemValues() {
             quantity: $(row).children('.item-quantity').attr('data-value'),
             is_done: $(row).children('.item-done').attr('data-value') === 'True'
         };
+        const price = $(row).children('.item-price').attr('data-value');
+        if (!isNaN(price)) {
+            item['price'] = parseFloat(price);
+        }
         items.push(item);
     });
     return items;
@@ -372,11 +381,18 @@ function initSubmitShoppingList(method) {
         jsonRequest(url, data, method).then(function (response) {
             window.location.replace(response.url);
         }).catch(function (response) {
-            if ('message' in response) {
-                createToastMessage(response.message, response.status,
-                    2000, 'Submission Error');
-            } else if ('errors' in response) {
-                displayErrors(response.errors)
+            if ('responseJSON' in response) {
+                response = response.responseJSON;
+                console.log(response);
+                if ('message' in response) {
+                    createToastMessage(response.message, 'error',
+                        5000, 'Submission Error');
+                }
+                if ('errors' in response) {
+                    displayErrors(response.errors)
+                }
+            } else {
+                createSubmissionErrorToast();
             }
         });
     })
@@ -435,7 +451,6 @@ function initCancelEditBtn(rowMap) {
         activeRow = null;
         rowMap.set('activeRow', activeRow);
         initEditListEditItemRow(rowMap);
-        initDeleteItemEditRow();
         initToggleItemDone();
     });
 }
