@@ -118,6 +118,11 @@ class ShoppingListSerializer(serializers.Serializer):
                 {'items': 'List can not contain more than 100 items'},
                 code='invalid'
             )
+        elif len(attrs.get('items')) < 1:
+            raise serializers.ValidationError(
+                {'items': 'List must contain at least one item'},
+                code='invalid'
+            )
         return attrs
 
     def create(self, validated_data):
