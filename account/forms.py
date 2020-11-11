@@ -53,7 +53,7 @@ class UserCreationForm(forms.ModelForm):
     def _post_clean(self):
         super()._post_clean()
         password = self.cleaned_data.get('password2')
-        if password and settings.ENV == string_constants.ENV_PRODUCTION:
+        if password:
             try:
                 password_validation.validate_password(password, self.instance)
             except forms.ValidationError as error:
