@@ -1,4 +1,5 @@
 {% extends "base_wide.html" %}
+{% load css_tags %}
 {% load i18n %}
 
 {% block content %}
@@ -17,9 +18,10 @@
                         {% for field in form %}
                             <div class="form-group">
                                 {{ field.label_tag }} <br/>
-                                {{ field }}
+                                {{ field | add_classes:'form-control' }}
                             </div>
                         {% endfor %}
+
                         <input type="hidden" name="next" value="{{ next }}"/>
                         <input class="btn btn-secondary mb-2"
                                type="submit" value="Sign in"/>
