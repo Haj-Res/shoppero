@@ -15,7 +15,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
-from shopping_list.forms import ItemForm, ShoppingListForm, \
+from items.forms import ItemForm
+from shopping_list.forms import ShoppingListForm, \
     ShoppingListItemForm, SharedShoppingListForm
 from shopping_list.models import Item, ShoppingList
 from shopping_list.querysets import get_shopping_list_items_queryset

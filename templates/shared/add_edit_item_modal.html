@@ -1,3 +1,4 @@
+{% load css_tags %}
 <!-- Add/Edit Modal -->
 <div class="modal fade show" id="itemModal" tabindex="-1" role="dialog"
      aria-labelledby="itemModalLabel" aria-hidden="true">
@@ -13,6 +14,42 @@
                 <div class="modal-body">
                     <div id="message" class="row justify-content-center"></div>
                     <div class="from-group mb-2">
+                        {{ form.name.label_tag }}
+                        {{ form.name | add_classes:'form-control' }}
+                        <div class="col-12 error" id="name_errors"></div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="from-group col-8">
+                            {{ form.code.label_tag }}
+                            {{ form.code | add_classes:'form-control' }}
+                            <div class="col-12 error" id="code_errors"></div>
+                        </div>
+                        <div class="from-group col-4">
+                            {{ form.price.label_tag }}
+                            {{ form.price | add_classes:'form-control' }}
+                            <div class="col-12 error" id="price_errors"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.tags.label_tag }}
+                        {{ form.tags | add_classes:'form-control' }}
+                        <div class="col-12 error" id="tags_errors"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-btn" type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button id="save-btn" type="submit" class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+            </form>
+            <hr>
+            <form id="item-form" action="." method="post" data-new="{% url 'api_items_list' %}">
+                <div class="modal-body">
+                    <div id="message" class="row justify-content-center"></div>
+                    <div class="from-group mb-2">
                         <label for="name">Name</label>
                         <input class="form-control" type="text" id="name" required placeholder="Name" maxlength="200">
                         <div class="col-12 error" id="name_errors"></div>
@@ -20,12 +57,14 @@
                     <div class="row mb-2">
                         <div class="from-group col-8">
                             <label for="code">Bar code</label>
-                            <input class="form-control" type="text" id="code" placeholder="Enter the bar code of the time" maxlength="20">
+                            <input class="form-control" type="text" id="code"
+                                   placeholder="Enter the bar code of the time" maxlength="20">
                             <div class="col-12 error" id="code_errors"></div>
                         </div>
                         <div class="from-group col-4">
                             <label for="price">Price</label>
-                            <input class="form-control" type="number" id="price" placeholder="Item price" min="0" step="0.01" max="9999999.99">
+                            <input class="form-control" type="number" id="price" placeholder="Item price" min="0"
+                                   step="0.01" max="9999999.99">
                             <div class="col-12 error" id="price_errors"></div>
                         </div>
                     </div>

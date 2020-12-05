@@ -25,6 +25,7 @@ urlpatterns = [
     path('settings/', include('settings.urls')),
     path('admin/', admin.site.urls),
     path('api/v1/shopping-list/', include('shopping_list.urls_api')),
+    path('items/', include('items.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
